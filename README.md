@@ -31,6 +31,7 @@ cp .env.example .env.local
 | `MONGODB_URI` | MongoDB Atlas connection string |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
 | `GITHUB_TOKEN` | Optional PAT for higher GitHub API rate limits during scraping |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini API key for narrative generation |
 | `CLOUDINARY_*` | Cloudinary cloud name, API key, and secret |
 
 ### 3. Google OAuth setup
@@ -73,6 +74,21 @@ curl -X POST http://localhost:3000/api/ingest \
 
 Or use the import form on `/dashboard` after signing in.
 
+## Phase 3 (Complete)
+
+- [x] `lib/geminiClient.ts` — Gemini Flash via Vercel AI SDK
+- [x] `lib/generateNarrative.ts` — STAR pitch, tradeoffs, alternatives, debt, bottlenecks
+- [x] `POST /api/projects/[id]/narrative` — generate and persist narrative
+- [x] `PATCH /api/projects/[id]` — save review context (stack, role, JD, gaps)
+- [x] `/projects/[id]/review` — two-column Project Review interface
+
+### Generate a narrative
+
+1. Import a repo on `/dashboard`
+2. Open **Review & generate narrative**
+3. Fill in stack context and target role
+4. Click **Generate narrative**
+
 ## Project Structure
 
 ```
@@ -80,10 +96,14 @@ app/
   (auth)/login/          # Sign-in page
   api/auth/[...nextauth] # Auth.js route handlers
   api/ingest/            # Repository ingestion API
+  api/projects/[id]/     # Project fetch, review update, narrative generation
   dashboard/             # Import repos and view project cards
+  projects/[id]/review/  # Project Review & narrative studio
 lib/
   db.ts                  # MongoDB Atlas connections
   cloudinary.ts          # Cloudinary asset utilities
+  geminiClient.ts        # Gemini Flash client
+  generateNarrative.ts   # AI narrative prompts & generation
   validateGitHubUrl.ts   # GitHub URL parser/validator
   githubScraper.ts       # Octokit scraper
   models.ts              # Mongoose models (projects)

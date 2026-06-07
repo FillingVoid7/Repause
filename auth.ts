@@ -28,9 +28,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
-    session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
+    async session({ session, token }) {
+      if (session.user) {
+        if (token.sub) {
+          session.user.id = token.sub;
+        } else if (session.user.email) {
+          const { resolveSessionUserId } = await import("@/lib/sessionUser");
+          const id = await resolveSessionUserId(session);
+          if (id) {
+            session.user.id = id;
+          }
+        }
       }
       return session;
     },

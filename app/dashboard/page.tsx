@@ -74,10 +74,12 @@ export default async function DashboardPage() {
               return (
                 <ProjectCard
                   key={project._id.toString()}
+                  id={project._id.toString()}
                   repoOwner={project.repoOwner}
                   repoName={project.repoName}
                   repoUrl={project.repoUrl}
                   status={project.status ?? "ready"}
+                  narrativeStatus={project.narrativeStatus ?? "pending"}
                   languageCount={Object.keys(languages).length}
                   fileCount={project.fileTree?.length ?? 0}
                   commitCount={project.commitsMetadata?.length ?? 0}

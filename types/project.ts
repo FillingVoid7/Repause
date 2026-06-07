@@ -1,0 +1,82 @@
+export type FlashcardCategory =
+  | "decision"
+  | "tradeoff"
+  | "debt"
+  | "bottleneck"
+  | "alternative"
+  | "concept";
+
+export interface NarrativeFlashcard {
+  category: FlashcardCategory;
+  front: string;
+  back: string;
+}
+
+export interface ArchitectureFlowNode {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export interface ArchitectureFlowEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface ArchitectureFlow {
+  nodes: ArchitectureFlowNode[];
+  edges: ArchitectureFlowEdge[];
+}
+
+export interface StarSections {
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+}
+
+export interface ProjectNarrative {
+  pitchSummary: string;
+  star: StarSections;
+  flashcards: NarrativeFlashcard[];
+  architectureFlow: ArchitectureFlow;
+  gaps: string[];
+  /** @deprecated Legacy long-form fields — kept for older records */
+  elevatorPitch?: string;
+  architectureDecisions?: string;
+  tradeoffs?: string;
+  alternativeArchitectures?: string;
+  technicalDebt?: string;
+  bottlenecks?: string;
+  recommendations?: string[];
+}
+
+export interface ProjectReview {
+  stackDescription: string;
+  targetRole: string;
+  companyTier: string;
+  jobDescription: string;
+  additionalContext: string;
+}
+
+export type NarrativeStatus = "pending" | "generating" | "ready" | "failed";
+
+export interface SerializedProject {
+  id: string;
+  repoUrl: string;
+  repoOwner: string;
+  repoName: string;
+  defaultBranch: string;
+  readme: string;
+  languages: Record<string, number>;
+  fileCount: number;
+  commitCount: number;
+  review: ProjectReview;
+  narrative: ProjectNarrative;
+  narrativeStatus: NarrativeStatus;
+  narrativeError?: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

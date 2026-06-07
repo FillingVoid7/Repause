@@ -69,6 +69,10 @@ body {
     @apply w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20;
   }
 
+  .textarea {
+    @apply w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20;
+  }
+
   .text-muted {
     color: var(--muted);
   }
@@ -83,5 +87,147 @@ body {
 
   .bg-border {
     background-color: var(--border);
+  }
+
+  /* Narrative study deck */
+  .narrative-section-title {
+    @apply text-sm font-semibold tracking-tight;
+  }
+
+  .narrative-section-sub {
+    @apply mt-1 text-xs text-muted;
+  }
+
+  .narrative-pitch {
+    @apply rounded-xl border border-[var(--border)] bg-gradient-to-br from-[var(--accent-subtle)] to-transparent p-4;
+  }
+
+  .narrative-pitch-text {
+    @apply mt-2 text-sm leading-relaxed;
+  }
+
+  .star-grid {
+    @apply mt-3 grid gap-3 sm:grid-cols-2;
+  }
+
+  .star-card {
+    @apply flex gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3;
+  }
+
+  .star-card-letter {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-white;
+  }
+
+  .star-card-title {
+    @apply text-xs font-semibold uppercase tracking-wide text-accent;
+  }
+
+  .star-card-text {
+    @apply mt-1 text-sm text-muted;
+  }
+
+  .gap-list {
+    @apply mt-2 space-y-2;
+  }
+
+  .gap-list li {
+    @apply rounded-lg border border-[var(--border)] bg-[var(--accent-subtle)]/30 px-3 py-2 text-sm text-muted;
+  }
+
+  .gap-list li::marker {
+    color: var(--accent);
+  }
+
+  /* Architecture flow */
+  .architecture-flow {
+    @apply mt-4 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--accent-subtle)]/20 p-4;
+  }
+
+  .architecture-flow-track {
+    @apply flex min-w-max items-stretch gap-0;
+  }
+
+  .architecture-flow-step {
+    @apply flex items-center;
+  }
+
+  .architecture-node {
+    @apply flex w-36 shrink-0 gap-2 rounded-lg border-2 border-[var(--accent)] bg-[var(--card)] p-3 shadow-sm;
+  }
+
+  .architecture-node-index {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white;
+  }
+
+  .architecture-node-label {
+    @apply text-xs font-semibold leading-tight;
+  }
+
+  .architecture-node-desc {
+    @apply mt-0.5 text-[10px] leading-snug text-muted;
+  }
+
+  .architecture-connector {
+    @apply relative flex w-12 shrink-0 flex-col items-center justify-center px-1;
+  }
+
+  .architecture-connector-line {
+    @apply absolute top-1/2 h-0.5 w-full -translate-y-1/2 bg-[var(--accent)]/40;
+  }
+
+  .architecture-connector-arrow {
+    @apply relative z-10 text-lg text-accent;
+  }
+
+  .architecture-connector-label {
+    @apply relative z-10 mt-1 text-[9px] text-muted;
+  }
+
+  /* Flashcards */
+  .flashcard-grid {
+    @apply mt-3 grid gap-3 sm:grid-cols-2;
+  }
+
+  .flashcard {
+    @apply h-36 w-full cursor-pointer border-0 bg-transparent p-0 perspective-[1000px];
+  }
+
+  .flashcard-inner {
+    @apply relative h-full w-full transition-transform duration-500;
+    transform-style: preserve-3d;
+  }
+
+  .flashcard-flipped .flashcard-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flashcard-face {
+    @apply absolute inset-0 flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm;
+    backface-visibility: hidden;
+  }
+
+  .flashcard-back {
+    transform: rotateY(180deg);
+    @apply bg-[var(--accent-subtle)]/60;
+  }
+
+  .flashcard-tag {
+    @apply w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide;
+  }
+
+  .flashcard-text {
+    @apply text-left text-sm font-medium leading-snug;
+  }
+
+  .flashcard-hint {
+    @apply text-left text-[10px] text-muted;
+  }
+
+  .flashcard-filter {
+    @apply rounded-full border border-[var(--border)] px-3 py-1 text-xs transition-colors hover:bg-[var(--accent-subtle)];
+  }
+
+  .flashcard-filter-active {
+    @apply border-[var(--accent)] bg-[var(--accent-subtle)] font-medium;
   }
 }

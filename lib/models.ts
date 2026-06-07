@@ -21,6 +21,43 @@ const commitMetadataSchema = new Schema(
   { _id: false },
 );
 
+const flashcardSchema = new Schema(
+  {
+    category: {
+      type: String,
+      enum: [
+        "decision",
+        "tradeoff",
+        "debt",
+        "bottleneck",
+        "alternative",
+        "concept",
+      ],
+    },
+    front: { type: String },
+    back: { type: String },
+  },
+  { _id: false },
+);
+
+const flowNodeSchema = new Schema(
+  {
+    id: { type: String },
+    label: { type: String },
+    description: { type: String },
+  },
+  { _id: false },
+);
+
+const flowEdgeSchema = new Schema(
+  {
+    from: { type: String },
+    to: { type: String },
+    label: { type: String },
+  },
+  { _id: false },
+);
+
 const projectSchema = new Schema(
   {
     userId: { type: String, required: true, index: true },
@@ -32,12 +69,34 @@ const projectSchema = new Schema(
     languages: { type: Map, of: Number, default: {} },
     fileTree: { type: [fileTreeEntrySchema], default: [] },
     commitsMetadata: { type: [commitMetadataSchema], default: [] },
-    narrative: {
-      elevatorPitch: { type: String, default: "" },
-      star: { type: String, default: "" },
-      tradeoffs: { type: String, default: "" },
-      technicalDebt: { type: String, default: "" },
+    review: {
+      stackDescription: { type: String, default: "" },
+      targetRole: { type: String, default: "" },
+      companyTier: { type: String, default: "" },
+      jobDescription: { type: String, default: "" },
+      additionalContext: { type: String, default: "" },
     },
+    narrative: {
+      pitchSummary: { type: String, default: "" },
+      star: {
+        situation: { type: String, default: "" },
+        task: { type: String, default: "" },
+        action: { type: String, default: "" },
+        result: { type: String, default: "" },
+      },
+      flashcards: { type: [flashcardSchema], default: [] },
+      architectureFlow: {
+        nodes: { type: [flowNodeSchema], default: [] },
+        edges: { type: [flowEdgeSchema], default: [] },
+      },
+      gaps: { type: [String], default: [] },
+    },
+    narrativeStatus: {
+      type: String,
+      enum: ["pending", "generating", "ready", "failed"],
+      default: "pending",
+    },
+    narrativeError: { type: String },
     status: {
       type: String,
       enum: ["ingesting", "ready", "failed"],

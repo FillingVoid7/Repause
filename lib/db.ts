@@ -64,6 +64,7 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (!mongooseCache.promise) {
     mongooseCache.promise = mongoose.connect(getMongoUri(), {
       bufferCommands: false,
+      dbName: process.env.MONGODB_DB_NAME,
     });
   }
 
