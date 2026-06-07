@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stackfold
+
+AI Project Defense & Articulation Platform — train candidates to defend their own project architectures, tradeoffs, and decisions using GitHub repositories as the source of truth.
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router), TypeScript, Tailwind CSS v4
+- **Auth**: Auth.js (NextAuth v5) — Google OAuth
+- **Database**: MongoDB Atlas (native driver + Mongoose)
+- **Storage**: Cloudinary (avatars, exports, screenshots)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Copy the example env file and fill in your credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Description |
+| --- | --- |
+| `AUTH_SECRET` | Random secret (`openssl rand -base64 32`) |
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
+| `CLOUDINARY_*` | Cloudinary cloud name, API key, and secret |
+
+### 3. Google OAuth setup
+
+1. Create an OAuth 2.0 Client ID at [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Set **Authorized redirect URI** to `http://localhost:3000/api/auth/callback/google`
+3. Copy Client ID and Client Secret into `.env.local`
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Phase 1 (Complete)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [x] Next.js App Router with Tailwind styling utilities
+- [x] NextAuth.js with MongoDB Atlas adapter (Google OAuth)
+- [x] `lib/db.ts` — MongoDB connection pooling (native client + Mongoose)
+- [x] `lib/cloudinary.ts` — Cloudinary SDK configuration and upload helpers
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+  (auth)/login/          # Sign-in page
+  api/auth/[...nextauth] # Auth.js route handlers
+  dashboard/             # Protected placeholder dashboard
+lib/
+  db.ts                  # MongoDB Atlas connections
+  cloudinary.ts          # Cloudinary asset utilities
+auth.ts                  # Auth.js configuration
+auth.config.ts           # Edge-compatible auth config (middleware)
+middleware.ts            # Route protection
+```

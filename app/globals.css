@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f7f4;
+  --foreground: #141414;
+  --card: #ffffff;
+  --card-border: #e8e4dc;
+  --muted: #6b6560;
+  --accent: #c45c26;
+  --accent-hover: #a34a1c;
+  --accent-subtle: #f5ebe3;
+  --border: #e0dbd2;
+  --danger: #b42318;
+  --radius: 0.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --radius-lg: var(--radius);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f0e0d;
+    --foreground: #f2ede6;
+    --card: #1a1816;
+    --card-border: #2e2a26;
+    --muted: #a39e97;
+    --accent: #e07a3f;
+    --accent-hover: #f09055;
+    --accent-subtle: #2a1f18;
+    --border: #2e2a26;
+    --danger: #f97066;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-[var(--card-border)] bg-[var(--card)] p-6 shadow-sm;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)];
+  }
+
+  .btn-secondary {
+    @apply border border-[var(--border)] bg-transparent hover:bg-[var(--accent-subtle)];
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20;
+  }
+
+  .text-muted {
+    color: var(--muted);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .text-danger {
+    color: var(--danger);
+  }
+
+  .bg-border {
+    background-color: var(--border);
+  }
 }
