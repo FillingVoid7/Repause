@@ -11,7 +11,7 @@ const mongoOptions = {
 
 declare global {
   // eslint-disable-next-line no-var
-  var _mongoClient: MongoClient | undefined;
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
   // eslint-disable-next-line no-var
   var _mongooseCache:
     | {
@@ -29,27 +29,24 @@ function getMongoUri(): string {
   return uri;
 }
 
-function createMongoClient(): MongoClient {
-  const uri = getMongoUri();
-
-  if (process.env.NODE_ENV === "development") {
-    if (!global._mongoClient) {
-      global._mongoClient = new MongoClient(uri, mongoOptions);
-    }
-    return global._mongoClient;
-  }
-
-  return new MongoClient(uri, mongoOptions);
+function createMongoClientPromise(): Promise<MongoClient> {
+  const client = new MongoClient(getMongoUri(), mongoOptions);
+  return client.connect();
 }
 
-let client: MongoClient | undefined;
-
-/** Returns a shared MongoClient for the NextAuth MongoDB adapter. */
-export function getMongoClient(): MongoClient {
-  if (!client) {
-    client = createMongoClient();
+/**
+ * Shared connected MongoClient for the NextAuth MongoDB adapter.
+ * Auth.js accepts a Promise<MongoClient> and awaits it internally.
+ */
+export function getMongoClientPromise(): Promise<MongoClient> {
+  if (process.env.NODE_ENV === "development") {
+    if (!global._mongoClientPromise) {
+      global._mongoClientPromise = createMongoClientPromise();
+    }
+    return global._mongoClientPromise;
   }
-  return client;
+
+  return createMongoClientPromise();
 }
 
 const mongooseCache = global._mongooseCache ?? { conn: null, promise: null };

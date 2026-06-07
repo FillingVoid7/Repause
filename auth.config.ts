@@ -19,15 +19,25 @@ export default {
 
       return true;
     },
-    session({ session, user }) {
-      if (session.user && user?.id) {
-        session.user.id = user.id;
-      }
-      return session;
-    },
   },
   session: {
-    strategy: "database",
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+  },
+  // New cookie name invalidates stale database-session tokens after the JWT migration.
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-stackfold.session-token"
+          : "stackfold.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   trustHost: true,
 } satisfies NextAuthConfig;

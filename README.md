@@ -30,6 +30,7 @@ cp .env.example .env.local
 | `AUTH_SECRET` | Random secret (`openssl rand -base64 32`) |
 | `MONGODB_URI` | MongoDB Atlas connection string |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
+| `GITHUB_TOKEN` | Optional PAT for higher GitHub API rate limits during scraping |
 | `CLOUDINARY_*` | Cloudinary cloud name, API key, and secret |
 
 ### 3. Google OAuth setup
@@ -53,16 +54,39 @@ Open [http://localhost:3000](http://localhost:3000).
 - [x] `lib/db.ts` — MongoDB connection pooling (native client + Mongoose)
 - [x] `lib/cloudinary.ts` — Cloudinary SDK configuration and upload helpers
 
+## Phase 2 (Complete)
+
+- [x] `lib/validateGitHubUrl.ts` — GitHub URL validation and normalization
+- [x] `lib/githubScraper.ts` — README, file tree, languages, commits via Octokit
+- [x] `lib/models.ts` — `projects` collection schema and persistence
+- [x] `POST /api/ingest` — authenticated ingest endpoint
+- [x] Dashboard import form and project cards
+
+### Ingest a repository
+
+```bash
+curl -X POST http://localhost:3000/api/ingest \
+  -H "Content-Type: application/json" \
+  -H "Cookie: <session-cookie>" \
+  -d '{"repoUrl": "https://github.com/vercel/next.js"}'
+```
+
+Or use the import form on `/dashboard` after signing in.
+
 ## Project Structure
 
 ```
 app/
   (auth)/login/          # Sign-in page
   api/auth/[...nextauth] # Auth.js route handlers
-  dashboard/             # Protected placeholder dashboard
+  api/ingest/            # Repository ingestion API
+  dashboard/             # Import repos and view project cards
 lib/
   db.ts                  # MongoDB Atlas connections
   cloudinary.ts          # Cloudinary asset utilities
+  validateGitHubUrl.ts   # GitHub URL parser/validator
+  githubScraper.ts       # Octokit scraper
+  models.ts              # Mongoose models (projects)
 auth.ts                  # Auth.js configuration
 auth.config.ts           # Edge-compatible auth config (middleware)
 middleware.ts            # Route protection
