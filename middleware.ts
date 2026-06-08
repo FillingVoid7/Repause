@@ -1,8 +1,6 @@
-import NextAuth from "next-auth";
+import { auth } from "./auth";
 
-import authConfig from "@/auth.config";
-
-export default NextAuth(authConfig).auth;
+export default auth;
 
 export const config = {
   matcher: [
