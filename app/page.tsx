@@ -70,8 +70,8 @@ export default async function Home() {
             },
             {
               step: "03",
-              title: "Drill & defend",
-              body: "Live Socratic Q&A simulates a technical interviewer probing your decisions.",
+              title: "Interview drill",
+              body: "Practice with flashcards and deep-dive questions tailored to your stack.",
             },
           ].map((item) => (
             <article key={item.step} className="card">

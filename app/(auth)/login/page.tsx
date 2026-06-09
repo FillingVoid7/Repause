@@ -20,7 +20,7 @@ export default async function LoginPage() {
       <div className="card w-full max-w-md">
         <div className="mb-8 space-y-2 text-center">
           <Link href="/" className="text-sm font-semibold tracking-wide text-accent">
-            STACKTOLD
+            STACKFOLD
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight">
             Sign in to your account
