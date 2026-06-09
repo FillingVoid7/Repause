@@ -1,5 +1,6 @@
 import { normalizeNarrative } from "@/lib/narrativeLegacy";
 import type {
+  NarrativeHistoryEntry,
   NarrativeStatus,
   ProjectReview,
   SerializedProject,
@@ -22,6 +23,15 @@ interface RawProject {
   commitsMetadata?: unknown[];
   review?: Partial<ProjectReview> | null;
   narrative?: Record<string, unknown> | null;
+  narrativeContextHash?: string | null;
+  narrativeReviewSnapshot?: Partial<ProjectReview> | null;
+  narrativeHistory?: {
+    id: string;
+    contextHash?: string;
+    review?: Partial<ProjectReview> | null;
+    narrative?: Record<string, unknown> | null;
+    createdAt?: Date;
+  }[];
   narrativeStatus?: NarrativeStatus;
   narrativeError?: string | null;
   status?: string;
@@ -125,6 +135,19 @@ export function serializeProject(project: RawProject): SerializedProject {
       additionalContext: project.review?.additionalContext ?? "",
     },
     narrative: normalizeNarrative(project.narrative ?? {}),
+    narrativeContextHash: project.narrativeContextHash ?? undefined,
+    narrativeReviewSnapshot: project.narrativeReviewSnapshot
+      ? {
+          ...EMPTY_REVIEW,
+          stackDescription: project.narrativeReviewSnapshot.stackDescription ?? "",
+          targetRole: project.narrativeReviewSnapshot.targetRole ?? "",
+          companyTier: project.narrativeReviewSnapshot.companyTier ?? "",
+          jobDescription: project.narrativeReviewSnapshot.jobDescription ?? "",
+          additionalContext:
+            project.narrativeReviewSnapshot.additionalContext ?? "",
+        }
+      : undefined,
+    narrativeHistory: serializeNarrativeHistory(project.narrativeHistory),
     narrativeStatus: status,
     narrativeError:
       status === "failed" ? (project.narrativeError ?? undefined) : undefined,
@@ -132,4 +155,27 @@ export function serializeProject(project: RawProject): SerializedProject {
     createdAt: project.createdAt?.toISOString(),
     updatedAt: project.updatedAt?.toISOString(),
   };
+}
+
+function serializeNarrativeHistory(
+  history?: RawProject["narrativeHistory"],
+): NarrativeHistoryEntry[] {
+  if (!history?.length) {
+    return [];
+  }
+
+  return history.map((entry) => ({
+    id: entry.id,
+    contextHash: entry.contextHash ?? "",
+    review: {
+      ...EMPTY_REVIEW,
+      stackDescription: entry.review?.stackDescription ?? "",
+      targetRole: entry.review?.targetRole ?? "",
+      companyTier: entry.review?.companyTier ?? "",
+      jobDescription: entry.review?.jobDescription ?? "",
+      additionalContext: entry.review?.additionalContext ?? "",
+    },
+    narrative: normalizeNarrative(entry.narrative ?? {}),
+    createdAt: entry.createdAt?.toISOString() ?? new Date().toISOString(),
+  }));
 }

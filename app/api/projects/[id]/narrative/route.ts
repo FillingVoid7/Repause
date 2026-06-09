@@ -1,8 +1,11 @@
+import { randomUUID } from "crypto";
+
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { generateProjectNarrative } from "@/lib/generateNarrative";
 import { getProjectModel } from "@/lib/models";
+import { formatGenerationError } from "@/lib/narrativeErrors";
 import {
   serializeProject,
   summarizeCommits,
@@ -10,12 +13,25 @@ import {
   toLanguageRecord,
 } from "@/lib/projectUtils";
 import { isValidProjectId } from "@/lib/projects";
+import { hashReviewContext } from "@/lib/reviewContext";
 import type { ProjectReview } from "@/types/project";
 
 export const runtime = "nodejs";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
+}
+
+function buildReview(project: {
+  review?: Partial<ProjectReview> | null;
+}): ProjectReview {
+  return {
+    stackDescription: project.review?.stackDescription ?? "",
+    targetRole: project.review?.targetRole ?? "",
+    companyTier: project.review?.companyTier ?? "",
+    jobDescription: project.review?.jobDescription ?? "",
+    additionalContext: project.review?.additionalContext ?? "",
+  };
 }
 
 export async function POST(_request: Request, context: RouteContext) {
@@ -43,23 +59,54 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
+  const review = buildReview(project);
+  const contextHash = hashReviewContext(review);
+
+  if (
+    project.narrativeStatus === "ready" &&
+    project.narrativeContextHash === contextHash
+  ) {
+    return NextResponse.json({
+      project: serializeProject(project),
+      alreadyGenerated: true,
+    });
+  }
+
+  if (project.narrativeStatus === "generating") {
+    return NextResponse.json(
+      { error: "Narrative generation is already in progress." },
+      { status: 409 },
+    );
+  }
+
+  const historyUpdate =
+    project.narrativeStatus === "ready" && project.narrative
+      ? {
+          $push: {
+            narrativeHistory: {
+              id: randomUUID(),
+              contextHash: project.narrativeContextHash ?? "",
+              review: buildReview({
+                review:
+                  project.narrativeReviewSnapshot ?? project.review ?? undefined,
+              }),
+              narrative: project.narrative,
+              createdAt: new Date(),
+            },
+          },
+        }
+      : {};
+
   await Project.updateOne(
     { _id: project._id },
     {
       $set: { narrativeStatus: "generating" },
       $unset: { narrativeError: "" },
+      ...historyUpdate,
     },
   );
 
   try {
-    const review: ProjectReview = {
-      stackDescription: project.review?.stackDescription ?? "",
-      targetRole: project.review?.targetRole ?? "",
-      companyTier: project.review?.companyTier ?? "",
-      jobDescription: project.review?.jobDescription ?? "",
-      additionalContext: project.review?.additionalContext ?? "",
-    };
-
     const narrative = await generateProjectNarrative({
       repoOwner: project.repoOwner,
       repoName: project.repoName,
@@ -81,6 +128,8 @@ export async function POST(_request: Request, context: RouteContext) {
             architectureFlow: narrative.architectureFlow,
             gaps: narrative.gaps,
           },
+          narrativeContextHash: contextHash,
+          narrativeReviewSnapshot: review,
           narrativeStatus: "ready",
         },
         $unset: { narrativeError: "" },
@@ -98,7 +147,9 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ project: serializeProject(updated) });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Narrative generation failed.";
+      error instanceof Error
+        ? error.message
+        : formatGenerationError(error);
 
     await Project.updateOne(
       { _id: project._id },

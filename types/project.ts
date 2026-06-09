@@ -62,6 +62,14 @@ export interface ProjectReview {
 
 export type NarrativeStatus = "pending" | "generating" | "ready" | "failed";
 
+export interface NarrativeHistoryEntry {
+  id: string;
+  contextHash: string;
+  review: ProjectReview;
+  narrative: ProjectNarrative;
+  createdAt: string;
+}
+
 export interface SerializedProject {
   id: string;
   repoUrl: string;
@@ -74,6 +82,9 @@ export interface SerializedProject {
   commitCount: number;
   review: ProjectReview;
   narrative: ProjectNarrative;
+  narrativeContextHash?: string;
+  narrativeReviewSnapshot?: ProjectReview;
+  narrativeHistory?: NarrativeHistoryEntry[];
   narrativeStatus: NarrativeStatus;
   narrativeError?: string;
   status: string;

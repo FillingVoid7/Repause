@@ -58,6 +58,41 @@ const flowEdgeSchema = new Schema(
   { _id: false },
 );
 
+const reviewFieldsSchema = {
+  stackDescription: { type: String, default: "" },
+  targetRole: { type: String, default: "" },
+  companyTier: { type: String, default: "" },
+  jobDescription: { type: String, default: "" },
+  additionalContext: { type: String, default: "" },
+};
+
+const narrativeFieldsSchema = {
+  pitchSummary: { type: String, default: "" },
+  star: {
+    situation: { type: String, default: "" },
+    task: { type: String, default: "" },
+    action: { type: String, default: "" },
+    result: { type: String, default: "" },
+  },
+  flashcards: { type: [flashcardSchema], default: [] },
+  architectureFlow: {
+    nodes: { type: [flowNodeSchema], default: [] },
+    edges: { type: [flowEdgeSchema], default: [] },
+  },
+  gaps: { type: [String], default: [] },
+};
+
+const narrativeHistoryEntrySchema = new Schema(
+  {
+    id: { type: String, required: true },
+    contextHash: { type: String, default: "" },
+    review: reviewFieldsSchema,
+    narrative: narrativeFieldsSchema,
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
 const projectSchema = new Schema(
   {
     userId: { type: String, required: true, index: true },
@@ -69,28 +104,11 @@ const projectSchema = new Schema(
     languages: { type: Map, of: Number, default: {} },
     fileTree: { type: [fileTreeEntrySchema], default: [] },
     commitsMetadata: { type: [commitMetadataSchema], default: [] },
-    review: {
-      stackDescription: { type: String, default: "" },
-      targetRole: { type: String, default: "" },
-      companyTier: { type: String, default: "" },
-      jobDescription: { type: String, default: "" },
-      additionalContext: { type: String, default: "" },
-    },
-    narrative: {
-      pitchSummary: { type: String, default: "" },
-      star: {
-        situation: { type: String, default: "" },
-        task: { type: String, default: "" },
-        action: { type: String, default: "" },
-        result: { type: String, default: "" },
-      },
-      flashcards: { type: [flashcardSchema], default: [] },
-      architectureFlow: {
-        nodes: { type: [flowNodeSchema], default: [] },
-        edges: { type: [flowEdgeSchema], default: [] },
-      },
-      gaps: { type: [String], default: [] },
-    },
+    review: reviewFieldsSchema,
+    narrative: narrativeFieldsSchema,
+    narrativeContextHash: { type: String },
+    narrativeReviewSnapshot: reviewFieldsSchema,
+    narrativeHistory: { type: [narrativeHistoryEntrySchema], default: [] },
     narrativeStatus: {
       type: String,
       enum: ["pending", "generating", "ready", "failed"],

@@ -19,10 +19,15 @@ export function NarrativeDisplay({ narrative }: NarrativeDisplayProps) {
   const starComplete = Object.values(narrative.star).some(Boolean);
 
   return (
-    <div className="narrative-display space-y-8">
+    <div className="narrative-display space-y-10">
       {narrative.pitchSummary ? (
         <section className="narrative-pitch">
-          <h3 className="narrative-section-title">Elevator pitch</h3>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent)] text-[11px] font-bold text-white">
+              ✦
+            </span>
+            <h3 className="narrative-section-title">Elevator pitch</h3>
+          </div>
           <p className="narrative-pitch-text">{narrative.pitchSummary}</p>
         </section>
       ) : null}
@@ -52,8 +57,8 @@ export function NarrativeDisplay({ narrative }: NarrativeDisplayProps) {
       {narrative.flashcards.length > 0 ? (
         <section>
           <h3 className="narrative-section-title">Study flashcards</h3>
-          <p className="narrative-section-sub">
-            Tap a card to flip. Filter by category to drill weak spots.
+          <p className="narrative-section-sub mb-4">
+            Tap a card to flip. 
           </p>
           <NarrativeFlashcards cards={narrative.flashcards} />
         </section>

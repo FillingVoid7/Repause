@@ -2,6 +2,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 
 import { getGeminiFlash } from "@/lib/geminiClient";
+import { formatGenerationError } from "@/lib/narrativeErrors";
 import type { ProjectReview } from "@/types/project";
 
 const flashcardSchema = z.object({
@@ -151,9 +152,13 @@ export async function generateProjectNarrative(
         continue;
       }
 
+      if (attempt >= maxAttempts) {
+        throw new Error(formatGenerationError(lastError, maxAttempts));
+      }
+
       throw lastError;
     }
   }
 
-  throw lastError ?? new Error("Narrative generation failed.");
+  throw new Error(formatGenerationError(lastError, maxAttempts));
 }

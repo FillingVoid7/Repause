@@ -66,10 +66,16 @@ export function ProjectCard({
             </div>
           </dl>
           <Link
-            href={`/projects/${id}/review`}
+            href={
+              narrativeStatus === "ready"
+                ? `/projects/${id}/narrative`
+                : `/projects/${id}/review`
+            }
             className="btn btn-primary w-full"
           >
-            Review &amp; generate narrative
+            {narrativeStatus === "ready"
+              ? "Open study deck"
+              : "Review & generate narrative"}
           </Link>
         </>
       ) : null}
