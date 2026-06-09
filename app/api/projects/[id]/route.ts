@@ -75,7 +75,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         "review.additionalContext": body.review.additionalContext ?? "",
       },
     },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 
   if (!project) {

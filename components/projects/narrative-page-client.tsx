@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { NarrativeDisplay } from "@/components/projects/narrative-display";
-import { formatReviewSummary } from "@/lib/reviewContext";
+import { formatReviewSummary, formatReviewParts } from "@/lib/reviewContext";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { NarrativeHistoryEntry, SerializedProject } from "@/types/project";
 
@@ -56,12 +57,35 @@ export function NarrativePageClient({
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-muted">
               Flashcards, architecture flow, and STAR — built for focused
-              interview prep.
+              interview preparation.
             </p>
             {project.narrativeReviewSnapshot ? (
-              <p className="mt-3 inline-flex rounded-full border border-[var(--border)] bg-[var(--card)]/80 px-3 py-1 text-xs text-muted">
-                {formatReviewSummary(project.narrativeReviewSnapshot)}
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {(() => {
+                  const p = formatReviewParts(project.narrativeReviewSnapshot);
+                  return (
+                    <>
+                      {p.role ? <Badge variant="accent">{p.role}</Badge> : null}
+                      {p.tier ? (
+                        <Badge key={p.tier} className={getTierColorClass(p.tier)}>
+                          {p.tier}
+                        </Badge>
+                      ) : null}
+                      {p.stack
+                        ? p.stack
+                            .split(/[,,;|]/)
+                            .map((s) => s.trim())
+                            .filter(Boolean)
+                            .map((tech) => (
+                              <Badge key={tech} className={getTechColorClass(tech)}>
+                                {tech}
+                              </Badge>
+                            ))
+                        : null}
+                    </>
+                  );
+                })()}
+              </div>
             ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -129,6 +153,49 @@ export function NarrativePageClient({
   );
 }
 
+function getTechColorClass(tech: string) {
+  const key = tech.toLowerCase();
+  const map: Record<string, string> = {
+    nextjs: "bg-black text-white",
+    react: "bg-[#61DAFB] text-black",
+    prisma: "bg-[#0EA5A0] text-white",
+    docker: "bg-[#2496ED] text-white",
+    node: "bg-[#43853d] text-white",
+    typescript: "bg-[#3178c6] text-white",
+    javascript: "bg-[#f7df1e] text-black",
+    mongo: "bg-[#3FA037] text-white",
+    mongodb: "bg-[#3FA037] text-white",
+    postgres: "bg-[#336791] text-white",
+    postgresql: "bg-[#336791] text-white",
+    faang: "bg-[var(--accent-subtle)] text-accent",
+  };
+
+  // match tokens by substring
+  for (const [k, v] of Object.entries(map)) {
+    if (key.includes(k)) return `${v} border border-[var(--card-border)]`;
+  }
+
+  // fallback: subtle accent outline
+  return "bg-[var(--card)] text-foreground border border-[var(--card-border)]";
+}
+
+function getTierColorClass(tier: string) {
+  const key = tier.toLowerCase();
+  const map: Record<string, string> = {
+    faang: "bg-black text-white",
+    startup: "bg-[#0EA5A0] text-white",
+    enterprise: "bg-[#111827] text-white",
+    mid: "bg-[#6B7280] text-white",
+    open: "bg-[#7C3AED] text-white",
+  };
+
+  for (const [k, v] of Object.entries(map)) {
+    if (key.includes(k)) return `${v} border border-[var(--card-border)]`;
+  }
+
+  return "bg-[var(--card)] text-foreground border border-[var(--card-border)]";
+}
+
 function HistoryCard({
   entry,
   index,
@@ -156,14 +223,37 @@ function HistoryCard({
         onClick={onToggle}
         className="flex w-full items-start justify-between gap-4 p-5 text-left"
       >
-        <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium">Generation #{index}</span>
             <StatusPill label="Archived" variant="muted" />
           </div>
-          <p className="mt-1 truncate text-sm text-muted">
-            {formatReviewSummary(entry.review)}
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {(() => {
+              const p = formatReviewParts(entry.review);
+              return (
+                <>
+                  {p.role ? <Badge variant="accent">{p.role}</Badge> : null}
+                  {p.tier ? (
+                    <Badge key={p.tier} className={getTierColorClass(p.tier)}>
+                      {p.tier}
+                    </Badge>
+                  ) : null}
+                  {p.stack
+                    ? p.stack
+                        .split(/[,,;|]/)
+                        .map((s) => s.trim())
+                        .filter(Boolean)
+                        .map((tech) => (
+                          <Badge key={tech} className={getTechColorClass(tech)}>
+                            {tech}
+                          </Badge>
+                        ))
+                    : null}
+                </>
+              );
+            })()}
+          </div>
           <p className="mt-2 text-xs text-muted">
             {formattedDate} · {flashcardCount} flashcards
           </p>

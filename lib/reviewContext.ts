@@ -35,3 +35,13 @@ export function formatReviewSummary(review: ProjectReview): string {
 
   return parts.length > 0 ? parts.join(" · ") : "Empty context";
 }
+
+export function formatReviewParts(review: ProjectReview) {
+  const normalized = normalizeReview(review);
+
+  return {
+    role: normalized.targetRole || "",
+    tier: normalized.companyTier || "",
+    stack: normalized.stackDescription || "",
+  };
+}

@@ -126,6 +126,9 @@ export async function POST(_request: Request, context: RouteContext) {
             star: narrative.star,
             flashcards: narrative.flashcards,
             architectureFlow: narrative.architectureFlow,
+            engineeringDecisions: narrative.engineeringDecisions,
+            failureScenarios: narrative.failureScenarios,
+            deepDiveQuestions: narrative.deepDiveQuestions,
             gaps: narrative.gaps,
           },
           narrativeContextHash: contextHash,
@@ -134,7 +137,7 @@ export async function POST(_request: Request, context: RouteContext) {
         },
         $unset: { narrativeError: "" },
       },
-      { new: true },
+      { returnDocument: "after" },
     ).lean();
 
     if (!updated) {

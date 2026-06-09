@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         status: "ready",
         scrapeError: undefined,
       },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     if (!project) {
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     await Project.findByIdAndUpdate(pendingProject._id, {
       status: "failed",
       scrapeError: message,
-    });
+    }, { returnDocument: "after" });
 
     return NextResponse.json({ error: message }, { status: 502 });
   }

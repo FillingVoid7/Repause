@@ -91,11 +91,31 @@ body {
 
   /* Narrative study deck */
   .narrative-section-title {
-    @apply text-sm font-semibold tracking-tight;
+    @apply text-base font-semibold tracking-tight text-foreground sm:text-[1.05rem];
   }
 
   .narrative-section-sub {
-    @apply mt-1 text-xs text-muted;
+    @apply mt-1 text-sm leading-relaxed text-muted;
+  }
+
+  .narrative-section-header {
+    @apply grid grid-cols-[auto_1fr] items-start gap-3;
+  }
+
+  .narrative-section-icon {
+    @apply mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/20;
+  }
+
+  .narrative-section-icon svg {
+    @apply h-5 w-5;
+  }
+
+  .narrative-section-copy {
+    @apply min-w-0;
+  }
+
+  .narrative-section-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-accent;
   }
 
   .narrative-pitch {
@@ -140,11 +160,25 @@ body {
 
   /* Architecture flow */
   .architecture-flow {
-    @apply mt-4 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--accent-subtle)]/20 p-4;
+    @apply mt-4 rounded-xl border border-[var(--border)] bg-[var(--accent-subtle)]/20 p-4 relative overflow-visible;
+  }
+
+  .architecture-scroll {
+    @apply -mx-4 px-4 overflow-x-auto overflow-y-hidden;
+  }
+
+  /* Hide scrollbar but keep scroll functionality */
+  .architecture-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .architecture-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .architecture-flow-track {
-    @apply flex min-w-max items-stretch gap-0;
+    @apply flex min-w-max items-stretch gap-4 py-2;
   }
 
   .architecture-flow-step {
@@ -181,6 +215,105 @@ body {
 
   .architecture-connector-label {
     @apply relative z-10 mt-1 text-[9px] text-muted;
+  }
+
+  /* Enhanced architecture flow visuals */
+  .architecture-svg {
+    @apply w-full h-full;
+  }
+
+  .architecture-path {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: arch-draw 1s ease forwards;
+    opacity: 0.95;
+  }
+
+  @keyframes arch-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .arch-card {
+    @apply relative flex shrink-0 w-48 flex-col gap-2 rounded-2xl bg-gradient-to-br from-[var(--card)]/90 to-[var(--accent-subtle)] p-4 shadow-lg border border-[var(--card-border)] transition-transform transform hover:scale-[1.02];
+  }
+
+  .arch-card-inner {
+    @apply flex items-start gap-3;
+  }
+
+  .arch-icon {
+    @apply flex h-10 w-10 items-center justify-center rounded-md bg-[var(--accent)]/10 text-[var(--accent)];
+  }
+
+  .arch-title {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .arch-desc {
+    @apply mt-1 text-[12px] text-muted leading-tight;
+  }
+
+  /* Responsive: stack vertically on small screens */
+  @screen sm {
+    .architecture-flow-track {
+      @apply flex-row gap-4;
+    }
+  }
+
+  @screen max-sm {
+    .architecture-flow-track {
+      @apply flex-col gap-3 items-stretch;
+    }
+    .arch-card {
+      @apply w-full;
+    }
+    .architecture-svg {
+      display: none;
+    }
+  }
+
+  /* Scroll arrow buttons */
+  .arch-scroll-btn {
+    @apply absolute top-1/2 z-20 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--card)]/80 border border-[var(--card-border)] shadow-md text-accent transition-opacity duration-200;
+    opacity: 0.96;
+  }
+
+  .arch-scroll-left {
+    @apply left-3;
+  }
+
+  .arch-scroll-right {
+    @apply right-3;
+  }
+
+  .arch-scroll-btn.invisible {
+    @apply opacity-0 pointer-events-none;
+  }
+
+  /* Edge fade for subtle depth */
+  .architecture-flow::before,
+  .architecture-flow::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 56px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .architecture-flow::before {
+    left: 0;
+    background: linear-gradient(90deg, var(--background), rgba(0,0,0,0));
+    opacity: 0.06;
+  }
+
+  .architecture-flow::after {
+    right: 0;
+    background: linear-gradient(-90deg, var(--background), rgba(0,0,0,0));
+    opacity: 0.06;
   }
 
   /* Flashcards */
@@ -229,5 +362,164 @@ body {
 
   .flashcard-filter-active {
     @apply border-[var(--accent)] bg-[var(--accent-subtle)] font-medium;
+  }
+
+  /* Engineering decisions */
+  .decision-section {
+    @apply rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--card)] via-[var(--card)] to-[var(--accent-subtle)]/25 p-5 shadow-sm;
+  }
+
+  .decision-section-header {
+    @apply flex items-start gap-3;
+  }
+
+  .decision-section-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent)] text-white shadow-md shadow-[var(--accent)]/20;
+  }
+
+  .decision-section-pill {
+    @apply inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-0.5 text-[11px] font-medium text-muted;
+  }
+
+  .decision-grid {
+    @apply grid gap-4 lg:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .decision-card {
+    @apply rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+
+  .decision-card-top {
+    @apply flex items-start gap-3;
+  }
+
+  .decision-card-number {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent-subtle)] text-[11px] font-bold text-accent;
+  }
+
+  .decision-card-title {
+    @apply pt-0.5 text-sm font-semibold leading-snug text-foreground;
+  }
+
+  .decision-card-fields {
+    @apply mt-4 space-y-3;
+  }
+
+  .decision-field dt {
+    @apply text-[10px] font-semibold uppercase tracking-wider text-accent;
+  }
+
+  .decision-field dd {
+    @apply mt-1 text-sm leading-relaxed text-foreground/80;
+  }
+
+  .decision-field-highlight {
+    @apply rounded-xl border border-[var(--accent)]/20 bg-[var(--accent-subtle)]/35 px-3 py-2.5;
+  }
+
+  .decision-field-alt {
+    @apply rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2.5;
+  }
+
+  .decision-field-tradeoff dd {
+    @apply text-muted;
+  }
+
+  /* Failure scenarios */
+  .failure-table-wrap {
+    @apply overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)];
+  }
+
+  .failure-table {
+    @apply w-full min-w-[480px] text-left text-sm;
+  }
+
+  .failure-table thead {
+    @apply border-b border-[var(--border)] bg-[var(--danger)]/5;
+  }
+
+  .failure-table th {
+    @apply px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted;
+  }
+
+  .failure-table tbody tr {
+    @apply border-b border-[var(--border)] last:border-b-0;
+  }
+
+  .failure-table tbody tr:hover {
+    @apply bg-[var(--accent-subtle)]/20;
+  }
+
+  .failure-scenario {
+    @apply w-[35%] px-4 py-3 align-top font-medium text-foreground;
+  }
+
+  .failure-handling {
+    @apply px-4 py-3 align-top text-muted;
+  }
+
+  /* Deep-dive questions */
+  .deep-dive-filters {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .deep-dive-filter {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-xs transition-colors hover:bg-[var(--accent-subtle)];
+  }
+
+  .deep-dive-filter-active {
+    @apply border-[var(--accent)] bg-[var(--accent-subtle)] font-medium text-accent;
+  }
+
+  .deep-dive-filter-count {
+    @apply rounded-full bg-[var(--border)] px-1.5 py-0.5 text-[10px] text-muted;
+  }
+
+  .deep-dive-filter-active .deep-dive-filter-count {
+    @apply bg-[var(--accent)]/20 text-accent;
+  }
+
+  .deep-dive-list {
+    @apply space-y-2;
+  }
+
+  .deep-dive-card {
+    @apply overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm;
+  }
+
+  .deep-dive-card-trigger {
+    @apply flex w-full items-start gap-3 p-4 text-left transition-colors hover:bg-[var(--accent-subtle)]/30;
+  }
+
+  .deep-dive-card-index {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--accent-subtle)] text-[11px] font-bold text-accent;
+  }
+
+  .deep-dive-card-question {
+    @apply flex-1 text-sm font-medium leading-snug;
+  }
+
+  .deep-dive-card-chevron {
+    @apply mt-0.5 shrink-0 text-muted transition-transform duration-200;
+  }
+
+  .deep-dive-card-chevron-open {
+    transform: rotate(180deg);
+  }
+
+  .deep-dive-card-answer {
+    @apply border-t border-[var(--border)] bg-[var(--accent-subtle)]/20 px-4 py-3;
+  }
+
+  .deep-dive-card-answer-label {
+    @apply text-[10px] font-semibold uppercase tracking-wider text-accent;
+  }
+
+  .deep-dive-card-answer ul {
+    @apply mt-2 space-y-1.5;
+  }
+
+  .deep-dive-card-answer li {
+    @apply text-sm text-muted before:mr-2 before:text-accent before:content-['→'];
   }
 }

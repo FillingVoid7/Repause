@@ -10,9 +10,7 @@ const mongoOptions = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
-  // eslint-disable-next-line no-var
   var _mongooseCache:
     | {
         conn: typeof mongoose | null;
@@ -51,11 +49,6 @@ export function getMongoClientPromise(): Promise<MongoClient> {
 
 const mongooseCache = global._mongooseCache ?? { conn: null, promise: null };
 global._mongooseCache = mongooseCache;
-
-/**
- * Mongoose connection for application models (Users, Projects, Sessions).
- * Reuses the same pool across hot reloads in development.
- */
 export async function connectDB(): Promise<typeof mongoose> {
   if (mongooseCache.conn) {
     return mongooseCache.conn;

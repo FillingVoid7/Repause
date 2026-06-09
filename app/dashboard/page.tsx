@@ -24,6 +24,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-12">
+      <Link href="/" className="text-sm text-muted hover:text-foreground">
+        ← Back to home
+      </Link>
+
       <header className="flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-semibold tracking-wide text-accent">
@@ -90,10 +94,6 @@ export default async function DashboardPage() {
           </div>
         )}
       </section>
-
-      <Link href="/" className="text-sm text-muted hover:text-foreground">
-        ← Back to home
-      </Link>
     </div>
   );
 }

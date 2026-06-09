@@ -58,6 +58,36 @@ const flowEdgeSchema = new Schema(
   { _id: false },
 );
 
+const engineeringDecisionSchema = new Schema(
+  {
+    decision: { type: String },
+    whyChosen: { type: String },
+    alternativeConsidered: { type: String },
+    tradeoff: { type: String },
+  },
+  { _id: false },
+);
+
+const failureScenarioSchema = new Schema(
+  {
+    scenario: { type: String },
+    handling: { type: String },
+  },
+  { _id: false },
+);
+
+const deepDiveQuestionSchema = new Schema(
+  {
+    category: {
+      type: String,
+      enum: ["architecture", "scalability", "database", "ai", "security"],
+    },
+    question: { type: String },
+    talkingPoints: { type: String },
+  },
+  { _id: false },
+);
+
 const reviewFieldsSchema = {
   stackDescription: { type: String, default: "" },
   targetRole: { type: String, default: "" },
@@ -79,6 +109,9 @@ const narrativeFieldsSchema = {
     nodes: { type: [flowNodeSchema], default: [] },
     edges: { type: [flowEdgeSchema], default: [] },
   },
+  engineeringDecisions: { type: [engineeringDecisionSchema], default: [] },
+  failureScenarios: { type: [failureScenarioSchema], default: [] },
+  deepDiveQuestions: { type: [deepDiveQuestionSchema], default: [] },
   gaps: { type: [String], default: [] },
 };
 

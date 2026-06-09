@@ -36,11 +36,39 @@ export interface StarSections {
   result: string;
 }
 
+export interface EngineeringDecision {
+  decision: string;
+  whyChosen: string;
+  alternativeConsidered: string;
+  tradeoff: string;
+}
+
+export interface FailureScenario {
+  scenario: string;
+  handling: string;
+}
+
+export type DeepDiveCategory =
+  | "architecture"
+  | "scalability"
+  | "database"
+  | "ai"
+  | "security";
+
+export interface DeepDiveQuestion {
+  category: DeepDiveCategory;
+  question: string;
+  talkingPoints: string;
+}
+
 export interface ProjectNarrative {
   pitchSummary: string;
   star: StarSections;
   flashcards: NarrativeFlashcard[];
   architectureFlow: ArchitectureFlow;
+  engineeringDecisions: EngineeringDecision[];
+  failureScenarios: FailureScenario[];
+  deepDiveQuestions: DeepDiveQuestion[];
   gaps: string[];
   /** @deprecated Legacy long-form fields — kept for older records */
   elevatorPitch?: string;

@@ -2,6 +2,9 @@ import type {
   ArchitectureFlow,
   ArchitectureFlowEdge,
   ArchitectureFlowNode,
+  DeepDiveQuestion,
+  EngineeringDecision,
+  FailureScenario,
   NarrativeFlashcard,
   ProjectNarrative,
   StarSections,
@@ -68,6 +71,46 @@ function sanitizeArchitectureFlow(raw: unknown): ArchitectureFlow {
   return { nodes, edges };
 }
 
+function sanitizeEngineeringDecision(
+  raw: Record<string, unknown>,
+): EngineeringDecision {
+  const entry = stripMongoFields(raw);
+  return {
+    decision: String(entry.decision ?? ""),
+    whyChosen: String(entry.whyChosen ?? ""),
+    alternativeConsidered: String(entry.alternativeConsidered ?? ""),
+    tradeoff: String(entry.tradeoff ?? ""),
+  };
+}
+
+function sanitizeFailureScenario(raw: Record<string, unknown>): FailureScenario {
+  const entry = stripMongoFields(raw);
+  return {
+    scenario: String(entry.scenario ?? ""),
+    handling: String(entry.handling ?? ""),
+  };
+}
+
+const VALID_DEEP_DIVE_CATEGORIES = new Set([
+  "architecture",
+  "scalability",
+  "database",
+  "ai",
+  "security",
+]);
+
+function sanitizeDeepDiveQuestion(raw: Record<string, unknown>): DeepDiveQuestion {
+  const entry = stripMongoFields(raw);
+  const category = String(entry.category ?? "architecture");
+  return {
+    category: VALID_DEEP_DIVE_CATEGORIES.has(category)
+      ? (category as DeepDiveQuestion["category"])
+      : "architecture",
+    question: String(entry.question ?? ""),
+    talkingPoints: String(entry.talkingPoints ?? ""),
+  };
+}
+
 /** Normalize narrative from DB — plain objects safe for Client Components. */
 export function normalizeNarrative(
   raw: Partial<ProjectNarrative> & Record<string, unknown>,
@@ -92,11 +135,34 @@ export function normalizeNarrative(
       ? (raw.recommendations as string[]).map(String)
       : [];
 
+  const engineeringDecisions = Array.isArray(raw.engineeringDecisions)
+    ? raw.engineeringDecisions.map((entry) =>
+        sanitizeEngineeringDecision(
+          entry as unknown as Record<string, unknown>,
+        ),
+      )
+    : [];
+
+  const failureScenarios = Array.isArray(raw.failureScenarios)
+    ? raw.failureScenarios.map((entry) =>
+        sanitizeFailureScenario(entry as unknown as Record<string, unknown>),
+      )
+    : [];
+
+  const deepDiveQuestions = Array.isArray(raw.deepDiveQuestions)
+    ? raw.deepDiveQuestions.map((entry) =>
+        sanitizeDeepDiveQuestion(entry as unknown as Record<string, unknown>),
+      )
+    : [];
+
   return {
     pitchSummary,
     star,
     flashcards,
     architectureFlow,
+    engineeringDecisions,
+    failureScenarios,
+    deepDiveQuestions,
     gaps,
     elevatorPitch: raw.elevatorPitch as string | undefined,
     architectureDecisions: raw.architectureDecisions as string | undefined,
@@ -150,6 +216,8 @@ function extractSection(text: string, heading: string): string {
 export function hasStructuredNarrative(narrative: ProjectNarrative): boolean {
   return (
     narrative.flashcards.length > 0 ||
-    narrative.architectureFlow.nodes.length > 0
+    narrative.architectureFlow.nodes.length > 0 ||
+    narrative.engineeringDecisions.length > 0 ||
+    narrative.deepDiveQuestions.length > 0
   );
 }

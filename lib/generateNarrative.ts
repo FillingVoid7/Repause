@@ -2,7 +2,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 
 import { getGeminiFlash } from "@/lib/geminiClient";
-import { formatGenerationError } from "@/lib/narrativeErrors";
+import { formatGenerationError, repairJsonResponse } from "@/lib/narrativeErrors";
 import type { ProjectReview } from "@/types/project";
 
 const flashcardSchema = z.object({
@@ -20,6 +20,48 @@ const flashcardSchema = z.object({
   back: z
     .string()
     .describe("Concise answer the candidate can memorize — max ~2 sentences."),
+});
+
+const engineeringDecisionSchema = z.object({
+  decision: z
+    .string()
+    .describe("Technology or design choice, e.g. Next.js App Router or MongoDB."),
+  whyChosen: z
+    .string()
+    .describe("Why this was chosen for THIS repo — max 2 sentences."),
+  alternativeConsidered: z
+    .string()
+    .describe("Credible alternative, e.g. Express + React or PostgreSQL."),
+  tradeoff: z
+    .string()
+    .describe("What you gave up — max 2 sentences."),
+});
+
+const failureScenarioSchema = z.object({
+  scenario: z
+    .string()
+    .describe("What could go wrong — max 12 words, e.g. Gemini timeout."),
+  handling: z
+    .string()
+    .describe("Production-grade handling — max 2 sentences."),
+});
+
+const deepDiveQuestionSchema = z.object({
+  category: z.enum([
+    "architecture",
+    "scalability",
+    "database",
+    "ai",
+    "security",
+  ]),
+  question: z
+    .string()
+    .describe("Exact interview question an interviewer would ask."),
+  talkingPoints: z
+    .string()
+    .describe(
+      "Key points to answer — concise phrases separated by semicolons, max 3 points.",
+    ),
 });
 
 const narrativeSchema = z.object({
@@ -58,10 +100,33 @@ const narrativeSchema = z.object({
       }),
     ),
   }),
+  engineeringDecisions: z
+    .array(engineeringDecisionSchema)
+    .min(4)
+    .max(8)
+    .describe(
+      "Key engineering decisions with why chosen, alternative, and tradeoff. Cover stack, data, AI, and architecture patterns visible in this repo.",
+    ),
+  failureScenarios: z
+    .array(failureScenarioSchema)
+    .min(4)
+    .max(8)
+    .describe(
+      "Production failure and edge cases — what breaks and how the system handles it.",
+    ),
+  deepDiveQuestions: z
+    .array(deepDiveQuestionSchema)
+    .min(12)
+    .max(20)
+    .describe(
+      "Hard interview follow-ups grouped by category. At least 2 per category: architecture, scalability, database, ai, security.",
+    ),
   gaps: z
     .array(z.string())
-    .max(6)
-    .describe("Short gaps the candidate must clarify — each max one sentence."),
+    .max(4)
+    .describe(
+      "Optional short personal prep gaps — things only the candidate can clarify. Max 4.",
+    ),
 });
 
 export type GeneratedNarrative = z.infer<typeof narrativeSchema>;
@@ -82,13 +147,27 @@ const RETRYABLE_PATTERN =
 function buildSystemPrompt(): string {
   return `You are a senior engineering interviewer coach. Output CONCISE, scannable study material — not essays.
 
-Rules:
+CRITICAL FORMAT RULES:
+- Return ONLY valid JSON that exactly matches the schema.
+- Every array field must have the EXACT minimum items specified:
+  * flashcards: EXACTLY 8-14 items (not fewer)
+  * engineeringDecisions: EXACTLY 4-8 items
+  * failureScenarios: EXACTLY 4-8 items
+  * deepDiveQuestions: EXACTLY 12-20 items (at least 2 per category)
+- architectureFlow.nodes: EXACTLY 4-8 items
+- gaps: 0-4 items (can be empty)
+- deepDiveQuestions must have exactly these categories: architecture, scalability, database, ai, security (at least 2 of each).
+- Flashcard categories MUST be one of: decision, tradeoff, debt, bottleneck, alternative, concept.
+
+CONTENT RULES:
 - Every field must be brief. No numbered lists inside string fields.
 - Flashcards: front = question/prompt, back = crisp defense answer.
 - Cover at least 2 cards each for: decision, tradeoff, debt, bottleneck, alternative.
 - architectureFlow: model the real pipeline/layers of THIS repo (left-to-right data flow).
 - Node ids must be unique snake_case. Edges must reference valid node ids.
-- gaps: actionable prep items, not paragraphs.
+- engineeringDecisions: real choices from THIS repo's stack. Format answers for "Why X instead of Y?" interviews.
+- failureScenarios: go beyond the happy path — AI failures, validation errors, DB failures, partial state.
+- gaps: only personal unknowns the candidate must clarify — keep minimal.
 - Be specific to this repository. Mark assumptions when repo evidence is thin.`;
 }
 
@@ -146,6 +225,25 @@ export async function generateProjectNarrative(
     } catch (error) {
       lastError =
         error instanceof Error ? error : new Error("Narrative generation failed.");
+
+      const errorMsg = lastError.message.toLowerCase();
+      
+      // Check if this is a schema validation error
+      if (
+        errorMsg.includes("did not match") ||
+        errorMsg.includes("schema") ||
+        errorMsg.includes("validation")
+      ) {
+        // For schema errors on final attempt, add repair suggestion
+        if (attempt === maxAttempts) {
+          throw new Error(
+            `Schema validation failed after ${maxAttempts} attempts. Ensure all required fields are present and arrays meet min/max requirements. Last error: ${lastError.message}`,
+          );
+        }
+        // On earlier attempts, retry with adjusted prompt
+        await delay(1000 * attempt);
+        continue;
+      }
 
       if (attempt < maxAttempts && isRetryableError(error)) {
         await delay(1000 * attempt);

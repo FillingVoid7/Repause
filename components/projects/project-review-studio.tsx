@@ -312,9 +312,21 @@ function StudyDeckPanel({
             <dd className="mt-1 text-lg font-semibold">{flashcardCount}</dd>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
-            <dt className="text-muted">Flow nodes</dt>
+            <dt className="text-muted">Deep-dive Qs</dt>
             <dd className="mt-1 text-lg font-semibold">
-              {project.narrative.architectureFlow.nodes.length}
+              {project.narrative.deepDiveQuestions.length}
+            </dd>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
+            <dt className="text-muted">Decisions</dt>
+            <dd className="mt-1 text-lg font-semibold">
+              {project.narrative.engineeringDecisions.length}
+            </dd>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
+            <dt className="text-muted">Failure cases</dt>
+            <dd className="mt-1 text-lg font-semibold">
+              {project.narrative.failureScenarios.length}
             </dd>
           </div>
         </dl>
