@@ -23,11 +23,9 @@ export default async function Home() {
                 Dashboard
               </Link>
             ) : (
-              <>
-                <Link href="/login" className="btn btn-primary">
-                  Sign in
-                </Link>
-              </>
+              <Link href="/login" className="btn btn-primary">
+                Sign in
+              </Link>
             )}
           </nav>
         </div>
