@@ -24,9 +24,6 @@ export default async function Home() {
               </Link>
             ) : (
               <>
-                <a href="#how-it-works" className="text-sm font-medium text-muted hover:text-foreground transition-colors">
-                  How it works
-                </a>
                 <Link href="/login" className="btn btn-primary">
                   Sign in
                 </Link>
