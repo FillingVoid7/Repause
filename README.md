@@ -7,7 +7,7 @@ AI Project Defense & Articulation Platform — train candidates to defend their 
 - **Framework**: Next.js 16 (App Router), TypeScript, Tailwind CSS v4
 - **Auth**: Auth.js (NextAuth v5) — Google OAuth
 - **Database**: MongoDB Atlas (native driver + Mongoose)
-- **Storage**: Cloudinary (avatars, exports, screenshots)
+- **Storage**: GitHub repository data only
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ cp .env.example .env.local
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
 | `GITHUB_TOKEN` | Optional PAT for higher GitHub API rate limits during scraping |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini API key for narrative generation |
-| `CLOUDINARY_*` | Cloudinary cloud name, API key, and secret |
+
 
 ### 3. Google OAuth setup
 
@@ -53,7 +53,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - [x] Next.js App Router with Tailwind styling utilities
 - [x] NextAuth.js with MongoDB Atlas adapter (Google OAuth)
 - [x] `lib/db.ts` — MongoDB connection pooling (native client + Mongoose)
-- [x] `lib/cloudinary.ts` — Cloudinary SDK configuration and upload helpers
+
 
 ## Phase 2 (Complete)
 
@@ -101,7 +101,7 @@ app/
   projects/[id]/review/  # Project Review & narrative studio
 lib/
   db.ts                  # MongoDB Atlas connections
-  cloudinary.ts          # Cloudinary asset utilities
+
   geminiClient.ts        # Gemini Flash client
   generateNarrative.ts   # AI narrative prompts & generation
   validateGitHubUrl.ts   # GitHub URL parser/validator
