@@ -7,6 +7,12 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
+ARG MONGODB_URI
+ARG AUTH_SECRET
+
+ENV MONGODB_URI=$MONGODB_URI
+ENV AUTH_SECRET=$AUTH_SECRET
+
 RUN npm run build
 
 FROM node:20-alpine AS runner

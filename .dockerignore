@@ -3,11 +3,8 @@ node_modules
 .turbo
 dist
 .env
-.env.*
 .git
 npm-debug.log*
-Dockerfile
-docker-compose.yml
 .github
 coverage
 build
