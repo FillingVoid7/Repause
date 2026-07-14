@@ -38,7 +38,7 @@ export function NarrativePageClient({
   }, [notice]);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-10">
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-6 py-10">
       <header className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--accent-subtle)] via-[var(--card)] to-[var(--card)] p-8 shadow-sm">
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[var(--accent)]/10 blur-2xl" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -107,7 +107,7 @@ export function NarrativePageClient({
         </div>
       </header>
 
-      <section className="card space-y-6 border-[var(--accent)]/20 shadow-md">
+      <section className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
           <div>
             <div className="flex items-center gap-2">
@@ -120,7 +120,9 @@ export function NarrativePageClient({
           </div>
           <StatusPill label="Current" variant="accent" />
         </div>
-        <NarrativeDisplay narrative={project.narrative} />
+        <div className="pt-4">
+          <NarrativeDisplay narrative={project.narrative} />
+        </div>
       </section>
 
       {history.length > 0 ? (
@@ -270,7 +272,7 @@ function HistoryCard({
       </button>
       {isExpanded ? (
         <div className="border-t border-[var(--border)] bg-[var(--accent-subtle)]/20 p-5">
-          <NarrativeDisplay narrative={entry.narrative} />
+          <NarrativeDisplay narrative={entry.narrative} hideToc />
         </div>
       ) : null}
     </article>

@@ -6,7 +6,7 @@ import { getProjectForSession } from "@/lib/projects";
 import { resolveSessionUserId } from "@/lib/sessionUser";
 
 export const metadata = {
-  title: "Project Review — Stackfold",
+  title: "Project Review — Repause",
 };
 
 interface ReviewPageProps {

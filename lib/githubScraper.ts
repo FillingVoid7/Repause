@@ -40,7 +40,7 @@ const MAX_FILE_TREE_ENTRIES = 500;
 function createOctokit(): Octokit {
   return new Octokit({
     auth: process.env.GITHUB_TOKEN,
-    userAgent: "stackfold-ingest",
+    userAgent: "repause-ingest",
   });
 }
 

@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Stackfold",
-    template: "%s | Stackfold",
+    default: "Repause",
+    template: "%s | Repause",
   },
   description:
     "AI-powered project defense and articulation platform for technical interview preparation.",

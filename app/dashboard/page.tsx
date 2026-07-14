@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { ImportRepoForm } from "@/components/dashboard/import-repo-form";
 import { ProjectCard } from "@/components/dashboard/project-card";
+import { Logo } from "@/components/logo";
 import { getProjectModel } from "@/lib/models";
 
 export const metadata = {
@@ -30,10 +31,8 @@ export default async function DashboardPage() {
 
       <header className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold tracking-wide text-accent">
-            STACKFOLD
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+          <Logo showText={false} />
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted">
             Signed in as {session.user.email ?? session.user.name}
           </p>
