@@ -6,7 +6,7 @@ export default async function Home() {
   const session = await auth();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[var(--background)] via-[var(--background)] to-[rgba(196,92,38,0.03)]">
+    <div className="flex min-h-screen flex-col bg-[var(--background)]">
       {/* Navigation */}
       <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
@@ -16,7 +16,7 @@ export default async function Home() {
           <nav className="flex items-center gap-4">
             {session?.user ? (
               <>
-                <Link href="/dashboard" className="btn btn-primary">
+                <Link href="/dashboard" className="btn bg-foreground text-background hover:bg-foreground/90">
                   Dashboard
                 </Link>
                 <form
@@ -31,7 +31,7 @@ export default async function Home() {
                 </form>
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary">
+              <Link href="/login" className="btn bg-foreground text-background hover:bg-foreground/90">
                 Sign in
               </Link>
             )}
@@ -43,10 +43,8 @@ export default async function Home() {
         {/* Hero Section */}
         <section className="relative overflow-hidden px-6 py-24 sm:py-32">
           {/* Background */}
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-accent/20 blur-[140px]" />
-            <div className="absolute right-0 top-40 h-[350px] w-[350px] rounded-full bg-pink-500/10 blur-[120px]" />
-            <div className="absolute left-0 bottom-0 h-[300px] w-[300px] rounded-full bg-indigo-500/10 blur-[120px]" />
+          <div className="absolute inset-0 -z-10 flex items-center justify-center">
+            <div className="absolute left-1/2 top-0 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-foreground/5 blur-[120px]" />
           </div>
 
           <div className="mx-auto max-w-7xl">
@@ -57,7 +55,7 @@ export default async function Home() {
 
               <h1 className="mx-auto max-w-5xl text-5xl font-bold tracking-tight sm:text-7xl">
                 Turn your
-                <span className="bg-gradient-to-r from-accent via-pink-500 to-indigo-500 bg-clip-text text-transparent">
+                <span className="text-foreground">
                   {" "}GitHub repositories{" "}
                 </span>
                 into interview superpowers
@@ -71,7 +69,7 @@ export default async function Home() {
               <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
                   href={session?.user ? "/dashboard" : "/login"}
-                  className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-4 font-semibold text-white shadow-xl transition-all hover:scale-105"
+                  className="rounded-xl bg-foreground px-8 py-4 font-semibold text-background shadow-sm transition-all hover:bg-foreground/90"
                 >
                   {session?.user ? "Open Dashboard" : "Start Free"}
                 </Link>
@@ -87,34 +85,50 @@ export default async function Home() {
 
             {/* Visual Pipeline */}
             <div className="mt-24 hidden lg:block">
-              <div className="relative mx-auto flex max-w-5xl items-center justify-between">
-                <div className="glass-card w-72 rounded-2xl border border-[var(--border)] bg-[var(--card)]/60 p-6 backdrop-blur-xl">
-                  <div className="mb-3 text-3xl">📦</div>
-                  <h3 className="font-semibold">GitHub Repository</h3>
-                  <p className="mt-2 text-sm text-muted">
-                    README, source code, commits, technologies
-                  </p>
+              <div className="mx-auto flex max-w-4xl items-start justify-between relative px-8 py-12">
+                
+                {/* Continuous Line */}
+                <div className="absolute left-[15%] right-[15%] top-[76px] h-px bg-[var(--border)] z-0"></div>
+
+                {/* Step 1 */}
+                <div className="relative z-10 flex flex-col items-center gap-4 bg-[var(--background)] px-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-foreground shadow-sm transition-transform hover:scale-105">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-foreground">GitHub Repo</h3>
+                    <p className="mt-1 text-xs text-muted">Source & Commits</p>
+                  </div>
                 </div>
 
-                <div className="text-5xl text-accent">→</div>
-
-                <div className="glass-card w-72 rounded-2xl border border-accent/20 bg-accent/5 p-6 backdrop-blur-xl">
-                  <div className="mb-3 text-3xl">🧠</div>
-                  <h3 className="font-semibold">AI Analysis</h3>
-                  <p className="mt-2 text-sm text-muted">
-                    Architecture extraction, narratives, STAR stories
-                  </p>
+                {/* Step 2 */}
+                <div className="relative z-10 flex flex-col items-center gap-4 bg-[var(--background)] px-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-foreground shadow-sm transition-transform hover:scale-105">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-foreground">AI Analysis</h3>
+                    <p className="mt-1 text-xs text-muted">Context Extraction</p>
+                  </div>
                 </div>
 
-                <div className="text-5xl text-accent">→</div>
-
-                <div className="glass-card w-72 rounded-2xl border border-[var(--border)] bg-[var(--card)]/60 p-6 backdrop-blur-xl">
-                  <div className="mb-3 text-3xl">🎯</div>
-                  <h3 className="font-semibold">Interview Ready</h3>
-                  <p className="mt-2 text-sm text-muted">
-                    Flashcards, mock interviews, deep drills
-                  </p>
+                {/* Step 3 */}
+                <div className="relative z-10 flex flex-col items-center gap-4 bg-[var(--background)] px-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-foreground shadow-sm transition-transform hover:scale-105">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-foreground">Interview Ready</h3>
+                    <p className="mt-1 text-xs text-muted">Flashcards & Drills</p>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -122,34 +136,40 @@ export default async function Home() {
 
         {/* Stats Section */}
         <section className="px-6 py-16 border-t border-[var(--border)]">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          <div className="mx-auto max-w-5xl flex flex-col md:flex-row gap-12 items-center">
+            {/* Vertical Sidebar Stats */}
+            <div className="w-full md:w-1/3 flex flex-col gap-8 border-l-2 border-[var(--border)] pl-8">
               {[
                 ["25+", "Architectures Analyzed"],
                 ["50+", "Interview Questions"],
                 ["15+", "Technology Stacks"],
                 ["5x", "Faster Preparation"],
               ].map(([value, label]) => (
-                <div
-                  key={label}
-                  className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 text-center backdrop-blur"
-                >
-                  <div className="text-3xl font-bold text-accent">
+                <div key={label}>
+                  <div className="text-3xl font-bold text-foreground">
                     {value}
                   </div>
-                  <div className="mt-2 text-sm text-muted">
+                  <div className="mt-1 text-sm text-muted">
                     {label}
                   </div>
                 </div>
               ))}
+            </div>
+            {/* Content area */}
+            <div className="w-full md:w-2/3 md:pl-10">
+              <h2 className="text-3xl font-bold mb-4 text-foreground">Trusted by developers worldwide</h2>
+              <p className="text-muted text-lg leading-relaxed">
+                Our platform turns your complex architectural decisions into compelling narratives,
+                ensuring you are fully prepared to answer even the most challenging interview questions.
+              </p>
             </div>
           </div>
         </section>
 
         {/* How It Works Section */}
         <section id="how-it-works" className="relative px-6 py-20 sm:py-28 border-t border-[var(--border)]">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-12 text-center">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-16 text-center">
               <h2 className="mb-3 text-3xl font-bold sm:text-4xl">
                 Three simple steps
               </h2>
@@ -158,40 +178,32 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="space-y-12 relative before:absolute before:inset-0 before:ml-[19px] before:-translate-x-px before:h-full before:w-0.5 before:bg-[var(--border)]">
               {[
                 {
                   step: "01",
                   title: "Import",
                   body: "Paste your GitHub URL. We analyze your code, README, and architecture.",
-                  icon: "📦",
-                  gradient: "from-blue-500/20 to-blue-500/5",
                 },
                 {
                   step: "02",
                   title: "Generate",
                   body: "AI crafts narratives, STAR stories, and talking points for your stack.",
-                  icon: "✨",
-                  gradient: "from-accent/20 to-accent/5",
                 },
                 {
                   step: "03",
                   title: "Practice",
                   body: "Master with flashcards and Socratic questions. Interview-ready in no time.",
-                  icon: "🎯",
-                  gradient: "from-green-500/20 to-green-500/5",
                 },
               ].map((item) => (
-                <div key={item.step} className="group relative">
-                  <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${item.gradient} transition-all duration-300 group-hover:shadow-lg`}></div>
-                  <article className="relative rounded-xl border border-[var(--border)] bg-[var(--card)]/50 p-6 backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-[var(--card)]/80">
-                    <div className="mb-3 flex items-center justify-between">
-                      <p className="font-mono text-xs font-bold text-accent">{item.step}</p>
-                      <span className="text-2xl">{item.icon}</span>
-                    </div>
-                    <h3 className="mb-2 text-lg font-semibold text-foreground">{item.title}</h3>
-                    <p className="text-sm text-muted leading-relaxed">{item.body}</p>
-                  </article>
+                <div key={item.step} className="relative flex items-start gap-8">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-[var(--border)] bg-[var(--background)] text-foreground font-mono text-sm font-bold shadow-sm shrink-0 relative z-10">
+                    {item.step}
+                  </div>
+                  <div className="pt-1.5">
+                    <h3 className="mb-2 text-xl font-semibold text-foreground">{item.title}</h3>
+                    <p className="text-muted leading-relaxed">{item.body}</p>
+                  </div>
                 </div>
               ))}
             </div>
