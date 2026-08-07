@@ -256,13 +256,13 @@ body {
   }
 
   /* Responsive: stack vertically on small screens */
-  @screen sm {
+  @media (min-width: 40rem) {
     .architecture-flow-track {
       @apply flex-row gap-4;
     }
   }
 
-  @screen max-sm {
+  @media (max-width: 39.999rem) {
     .architecture-flow-track {
       @apply flex-col gap-3 items-stretch;
     }
