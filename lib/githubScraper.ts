@@ -37,11 +37,25 @@ const README_CANDIDATES = [
 const MAX_COMMITS = 30;
 const MAX_FILE_TREE_ENTRIES = 500;
 
-function createOctokit(): Octokit {
+function createOctokit(token?: string): Octokit {
+  const resolvedToken = token ?? getGitHubToken();
+
   return new Octokit({
-    auth: process.env.GITHUB_TOKEN,
+    ...(resolvedToken ? { auth: resolvedToken } : {}),
     userAgent: "repause-ingest",
   });
+}
+
+function getGitHubToken(): string | undefined {
+  const candidates = [
+    process.env.GITHUB_TOKEN,
+    process.env.GH_TOKEN,
+    process.env.GITHUB_PAT,
+  ];
+
+  return candidates
+    .map((value) => value?.trim())
+    .find((value): value is string => Boolean(value));
 }
 
 function decodeContent(content: string, encoding: string): string {
@@ -144,6 +158,26 @@ function isNotFoundError(error: unknown): boolean {
   );
 }
 
+function isUnauthorizedError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  if ("status" in error && typeof error.status === "number") {
+    return error.status === 401;
+  }
+
+  if ("message" in error && typeof error.message === "string") {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes("bad credentials") ||
+      message.includes("requires authentication")
+    );
+  }
+
+  return false;
+}
+
 function toScraperError(error: unknown): Error {
   if (
     typeof error === "object" &&
@@ -153,6 +187,17 @@ function toScraperError(error: unknown): Error {
   ) {
     return new Error(
       "Repository not found. Check the URL or ensure the repository is public.",
+    );
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    error.status === 401
+  ) {
+    return new Error(
+      "GitHub rejected the provided credentials. If the repository is public, the scraper will retry without authentication; otherwise provide a valid token.",
     );
   }
 
@@ -205,6 +250,33 @@ export async function scrapeGitHubRepository(
       defaultBranch,
     };
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      const octokitUnauth = createOctokit("");
+      try {
+        const { data: repository } = await octokitUnauth.repos.get({ owner, repo });
+        const defaultBranch = repository.default_branch;
+
+        const [readme, languages, fileTree, commitsMetadata] = await Promise.all([
+          fetchReadme(octokitUnauth, owner, repo),
+          fetchLanguages(octokitUnauth, owner, repo),
+          fetchFileTree(octokitUnauth, owner, repo, defaultBranch),
+          fetchCommits(octokitUnauth, owner, repo),
+        ]);
+
+        return {
+          owner,
+          repo,
+          repoUrl: normalizedUrl,
+          readme,
+          languages,
+          fileTree,
+          commitsMetadata,
+          defaultBranch,
+        };
+      } catch (error) {
+        throw toScraperError(error);
+      }
+    }
     throw toScraperError(error);
   }
 }
