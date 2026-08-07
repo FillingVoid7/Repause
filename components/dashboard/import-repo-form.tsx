@@ -21,10 +21,11 @@ export function ImportRepoForm() {
         body: JSON.stringify({ repoUrl }),
       });
 
-      const data = (await response.json()) as { error?: string };
+      const message = await getErrorMessage(response);
 
       if (!response.ok) {
-        setError(data.error ?? "Failed to import repository.");
+        setError(message);
+        router.refresh();
         return;
       }
 
@@ -73,4 +74,14 @@ export function ImportRepoForm() {
       ) : null}
     </form>
   );
+}
+
+async function getErrorMessage(response: Response): Promise<string> {
+  try {
+    const text = await response.text();
+    const data = text ? (JSON.parse(text) as { error?: string }) : null;
+    return (data?.error ?? text) || "Failed to import repository.";
+  } catch {
+    return "Failed to import repository.";
+  }
 }
