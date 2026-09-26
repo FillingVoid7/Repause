@@ -81,14 +81,45 @@ export interface ProjectNarrative {
 }
 
 export interface ProjectReview {
-  stackDescription: string;
+  /**
+   * What the candidate personally built and the outcome it produced. This is
+   * the one signal the scraper cannot infer from the repository, so it carries
+   * the most weight in the generated narrative.
+   */
+  contribution: string;
   targetRole: string;
   companyTier: string;
   jobDescription: string;
+  /**
+   * @deprecated No longer collected or sent to the model. Retained so existing
+   * documents and narrative snapshots keep round-tripping without a migration.
+   */
+  stackDescription: string;
+  /** @deprecated No longer collected or sent to the model. See stackDescription. */
   additionalContext: string;
 }
 
 export type NarrativeStatus = "pending" | "generating" | "ready" | "failed";
+
+/** Dashboard-facing projection of a project document. */
+export interface ProjectSummary {
+  id: string;
+  repoOwner: string;
+  repoName: string;
+  repoUrl: string;
+  status: string;
+  narrativeStatus: NarrativeStatus;
+  languageCount: number;
+  fileCount: number;
+  commitCount: number;
+  scrapeError?: string;
+  topLanguages: { name: string; share: number }[];
+  updatedLabel: string;
+  /** Primary destination: the study deck once generated, the review page before. */
+  href: string;
+  /** Always the review/context page, even when a deck already exists. */
+  reviewHref: string;
+}
 
 export interface NarrativeHistoryEntry {
   id: string;

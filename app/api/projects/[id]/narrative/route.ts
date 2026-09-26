@@ -26,10 +26,11 @@ function buildReview(project: {
   review?: Partial<ProjectReview> | null;
 }): ProjectReview {
   return {
-    stackDescription: project.review?.stackDescription ?? "",
+    contribution: project.review?.contribution ?? "",
     targetRole: project.review?.targetRole ?? "",
     companyTier: project.review?.companyTier ?? "",
     jobDescription: project.review?.jobDescription ?? "",
+    stackDescription: project.review?.stackDescription ?? "",
     additionalContext: project.review?.additionalContext ?? "",
   };
 }

@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+
+import { validateGitHubUrl } from "@/lib/validateGitHubUrl";
 
 export function ImportRepoForm() {
   const router = useRouter();
@@ -11,6 +14,16 @@ export function ImportRepoForm() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const validation = validateGitHubUrl(repoUrl);
+
+    if (!validation.ok) {
+      setError(validation.error);
+      return;
+    }
+
+    const shorthand = `${validation.data.owner}/${validation.data.repo}`;
+
     setError(null);
     setIsSubmitting(true);
 
@@ -18,17 +31,22 @@ export function ImportRepoForm() {
       const response = await fetch("/api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl }),
+        body: JSON.stringify({ repoUrl: shorthand }),
       });
 
       const message = await getErrorMessage(response);
 
       if (!response.ok) {
         setError(message);
-        router.refresh();
+        if (response.status === 409) {
+          router.refresh();
+        }
         return;
       }
 
+      toast.success(
+        `${shorthand} imported. Review the context, then generate your narrative.`,
+      );
       setRepoUrl("");
       router.refresh();
     } catch {
@@ -39,39 +57,60 @@ export function ImportRepoForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <label htmlFor="repoUrl" className="text-sm font-medium">
-          GitHub repository URL
-        </label>
-        <input
-          id="repoUrl"
-          name="repoUrl"
-          type="url"
-          required
-          placeholder="https://github.com/owner/repo"
-          value={repoUrl}
-          onChange={(event) => setRepoUrl(event.target.value)}
-          className="input"
-        />
-        <p className="text-xs text-muted">
-          Accepts HTTPS, SSH, or owner/repo shorthand.
-        </p>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="group relative flex flex-1 items-center rounded-xl border border-[var(--border)] bg-[var(--card)] transition-colors focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent)]/20">
+          <input
+            id="repoUrl"
+            name="repoUrl"
+            type="text"
+            inputMode="url"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+            placeholder="https://github.com/owner/repository"
+            aria-label="GitHub repository URL"
+            aria-describedby="repoUrl-hint"
+            value={repoUrl}
+            onChange={(event) => {
+              setRepoUrl(event.target.value);
+              if (error) setError(null);
+            }}
+            className="w-full bg-transparent px-3.5 py-2.5 font-mono text-sm outline-none placeholder:font-sans placeholder:text-muted/70"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="btn btn-primary shrink-0 px-5"
+        >
+          {isSubmitting ? (
+            <>
+              <span
+                aria-hidden="true"
+                className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              />
+              Importing
+            </>
+          ) : (
+            "Import"
+          )}
+        </button>
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="btn btn-primary w-fit"
-      >
-        {isSubmitting ? "Importing…" : "Import repository"}
-      </button>
-
-      {error ? (
-        <p className="text-sm text-danger" role="alert">
-          {error}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p id="repoUrl-hint" className="text-xs text-muted">
+          Public repositories. Paste the whole link, an SSH remote, or{" "}
+          <code>owner/repo</code>.
         </p>
-      ) : null}
+        {error ? (
+          <p role="alert" className="text-xs font-medium text-danger">
+            {error}
+          </p>
+        ) : null}
+      </div>
     </form>
   );
 }

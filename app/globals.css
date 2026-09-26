@@ -11,6 +11,10 @@
   --accent-subtle: #ede9fe;
   --border: #e7e5e4;
   --danger: #ef4444;
+  --pill-violet: #7c3aed;
+  --pill-green: #059669;
+  --pill-amber: #d97706;
+  --pill-red: #dc2626;
   --radius: 1rem;
 }
 
@@ -39,6 +43,10 @@
     --accent-subtle: #2e1065;
     --border: #27272a;
     --danger: #f87171;
+    --pill-violet: #a78bfa;
+    --pill-green: #34d399;
+    --pill-amber: #fbbf24;
+    --pill-red: #f87171;
   }
 }
 
@@ -48,13 +56,110 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/*
+ * Scrolling.
+ *
+ * The dashboard is the tallest route (import panel + project grid + centred
+ * footer), so it is where the default chunky scrollbar is most obvious. The
+ * document is the scroll container rather than a nested one on purpose: a
+ * page-level `overflow` wrapper would fight the sticky header and breaks
+ * mobile URL-bar collapse.
+ *
+ * `scroll-behavior` only affects programmatic/anchor scrolling, so the wheel
+ * and trackpad keep their native 1:1 feel.
+ */
+html {
+  scroll-behavior: smooth;
+  /* Keep anchored sections clear of the 4rem sticky header. */
+  scroll-padding-top: 5rem;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--accent) 38%, var(--border)) transparent;
+}
+
+/* WebKit / Blink */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-color: color-mix(in oklab, var(--accent) 38%, var(--border));
+  background-clip: content-box;
+  transition: background-color 150ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklab, var(--accent) 62%, var(--border));
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 26%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @layer components {
   .card {
     @apply rounded-lg border border-[var(--card-border)] bg-[var(--card)] p-6 shadow-sm;
   }
 
+  /* Ambient dot field used behind dark panels */
+  .dot-field {
+    background-image: radial-gradient(
+      circle at center,
+      rgb(255 255 255 / 0.13) 1px,
+      transparent 1px
+    );
+    background-size: 22px 22px;
+  }
+
+  .panel {
+    @apply relative overflow-hidden rounded-2xl border border-[var(--card-border)] bg-[var(--card)] shadow-sm;
+  }
+
+  .hairline-top::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--accent) 55%, transparent),
+      transparent
+    );
+  }
+
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)];
+  }
+
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-primary {
@@ -66,7 +171,59 @@ body {
   }
 
   .input {
-    @apply w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20;
+    @apply w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm outline-none placeholder:text-muted/70 focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20;
+  }
+
+  /* Workspace surfaces */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-[var(--accent)]/40 hover:text-foreground;
+  }
+
+  .chip-active {
+    @apply border-[var(--accent)] bg-[var(--accent-subtle)] text-accent;
+  }
+
+  .avatar-tile {
+    @apply flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] text-sm font-semibold uppercase text-white shadow-sm;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-[var(--border)]/60;
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.35),
+      transparent
+    );
+    animation: skeleton-sweep 1.6s infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .rise-in {
+    animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .textarea {

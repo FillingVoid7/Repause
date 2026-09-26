@@ -1,7 +1,9 @@
 const GITHUB_HOST_PATTERN =
   /^(?:https?:\/\/)?(?:www\.)?github\.com\/([^/?#]+)\/([^/?#]+)/i;
 
-const GITHUB_SSH_PATTERN = /^git@github\.com:([^/]+)\/([^/.]+)(?:\.git)?$/i;
+// Repo segment may contain dots (e.g. "next.js"); a trailing ".git" is
+// stripped by cleanRepoName rather than excluded from the match.
+const GITHUB_SSH_PATTERN = /^git@github\.com:([^/]+)\/([^/]+)$/i;
 
 const SHORTHAND_PATTERN = /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?)\/([a-zA-Z0-9._-]+)$/;
 

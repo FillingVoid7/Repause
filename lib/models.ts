@@ -89,10 +89,12 @@ const deepDiveQuestionSchema = new Schema(
 );
 
 const reviewFieldsSchema = {
-  stackDescription: { type: String, default: "" },
+  contribution: { type: String, default: "" },
   targetRole: { type: String, default: "" },
   companyTier: { type: String, default: "" },
   jobDescription: { type: String, default: "" },
+  // Legacy: no longer collected or sent to the model, kept for old documents.
+  stackDescription: { type: String, default: "" },
   additionalContext: { type: String, default: "" },
 };
 

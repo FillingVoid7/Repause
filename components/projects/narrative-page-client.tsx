@@ -43,12 +43,14 @@ export function NarrativePageClient({
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[var(--accent)]/10 blur-2xl" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Link
-              href={`/projects/${project.id}/review`}
-              className="text-sm text-muted transition-colors hover:text-accent"
-            >
-              ← Back to review
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/dashboard"
+                className="text-sm text-muted transition-colors hover:text-accent"
+              >
+                ← Back to dashboard
+              </Link>
+            </div>
             <p className="mt-3 text-sm font-semibold tracking-[0.2em] text-accent">
               STUDY DECK
             </p>

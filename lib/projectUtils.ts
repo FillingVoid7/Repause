@@ -40,10 +40,11 @@ interface RawProject {
 }
 
 const EMPTY_REVIEW: ProjectReview = {
-  stackDescription: "",
+  contribution: "",
   targetRole: "",
   companyTier: "",
   jobDescription: "",
+  stackDescription: "",
   additionalContext: "",
 };
 
@@ -128,10 +129,11 @@ export function serializeProject(project: RawProject): SerializedProject {
     commitCount: project.commitsMetadata?.length ?? 0,
     review: {
       ...EMPTY_REVIEW,
-      stackDescription: project.review?.stackDescription ?? "",
+      contribution: project.review?.contribution ?? "",
       targetRole: project.review?.targetRole ?? "",
       companyTier: project.review?.companyTier ?? "",
       jobDescription: project.review?.jobDescription ?? "",
+      stackDescription: project.review?.stackDescription ?? "",
       additionalContext: project.review?.additionalContext ?? "",
     },
     narrative: normalizeNarrative(project.narrative ?? {}),
@@ -139,10 +141,12 @@ export function serializeProject(project: RawProject): SerializedProject {
     narrativeReviewSnapshot: project.narrativeReviewSnapshot
       ? {
           ...EMPTY_REVIEW,
-          stackDescription: project.narrativeReviewSnapshot.stackDescription ?? "",
+          contribution: project.narrativeReviewSnapshot.contribution ?? "",
           targetRole: project.narrativeReviewSnapshot.targetRole ?? "",
           companyTier: project.narrativeReviewSnapshot.companyTier ?? "",
           jobDescription: project.narrativeReviewSnapshot.jobDescription ?? "",
+          stackDescription:
+            project.narrativeReviewSnapshot.stackDescription ?? "",
           additionalContext:
             project.narrativeReviewSnapshot.additionalContext ?? "",
         }
@@ -169,10 +173,11 @@ function serializeNarrativeHistory(
     contextHash: entry.contextHash ?? "",
     review: {
       ...EMPTY_REVIEW,
-      stackDescription: entry.review?.stackDescription ?? "",
+      contribution: entry.review?.contribution ?? "",
       targetRole: entry.review?.targetRole ?? "",
       companyTier: entry.review?.companyTier ?? "",
       jobDescription: entry.review?.jobDescription ?? "",
+      stackDescription: entry.review?.stackDescription ?? "",
       additionalContext: entry.review?.additionalContext ?? "",
     },
     narrative: normalizeNarrative(entry.narrative ?? {}),

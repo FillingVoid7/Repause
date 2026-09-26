@@ -1,34 +1,64 @@
-import React from "react";
+import { cn } from "@/lib/utils";
+
+export type LogoSize = "sm" | "md" | "lg";
+
+/**
+ * Repause wordmark.
+ *
+ * The lockup is drawn as outlines rather than typed glyphs so the mark is
+ * byte-identical everywhere it appears — header, sign-in page, and the favicon
+ * in `app/icon.svg` / `app/favicon.ico` — with no dependency on font loading
+ * and no fallback flash while Geist swaps in.
+ *
+ * Geometry: Geist at weight 600 (the former `font-semibold`) with 0.18em
+ * letter-spacing, ink-trimmed to its bounding box. Regenerate with the script
+ * in the project notes rather than hand-editing `WORDMARK`.
+ */
+const WORDMARK =
+  "M0 726L0 16L297 16Q374 16 430 42Q486 68 517 116Q548 164 548 229Q548 278 527 316Q506 354 470.5 377Q435 400 392 405L387 395Q456 395 493.5 426Q531 457 536 521L554 726L422 726L407 540Q404 498 380 478Q356 458 300 458L130 458L130 726ZM130 344L289 344Q348 344 381 316Q414 288 414 237Q414 185 380.5 157Q347 129 283 129L130 129ZM868.8 726L868.8 16L1346.8 16L1346.8 129L998.8 129L998.8 314L1334.8 314L1334.8 426L998.8 426L998.8 613L1354.8 613L1354.8 726ZM1664.2 726L1664.2 16L1939.2 16Q2064.2 16 2134.2 76Q2204.2 136 2204.2 242Q2204.2 313 2172.2 364.5Q2140.2 416 2081.2 443Q2022.2 470 1939.2 470L1794.2 470L1794.2 726ZM1794.2 357L1933.2 357Q1999.2 357 2034.7 328Q2070.2 299 2070.2 242Q2070.2 186 2034.7 157.5Q1999.2 129 1933.2 129L1794.2 129ZM2447.6 726L2703.6 16L2862.6 16L3118.6 726L2982.6 726L2923.6 558L2642.6 558L2583.6 726ZM2680.6 447L2885.6 447L2783.6 147ZM3666.8 742Q3580.8 742 3516.3 709Q3451.8 676 3417.3 615.5Q3382.8 555 3382.8 472L3382.8 15L3512.8 15L3512.8 472Q3512.8 547 3552.8 588Q3592.8 629 3666.8 629Q3740.8 629 3781.3 588Q3821.8 547 3821.8 472L3821.8 15L3951.8 15L3951.8 472Q3951.8 555 3916.8 615.5Q3881.8 676 3818.3 709Q3754.8 742 3666.8 742ZM4544.4 742Q4456.4 742 4392.4 711Q4328.4 680 4291.9 624.5Q4255.4 569 4249.4 495L4381.4 487Q4387.4 533 4407.9 565Q4428.4 597 4462.9 613.5Q4497.4 630 4546.4 630Q4588.4 630 4617.9 619.5Q4647.4 609 4662.9 588.5Q4678.4 568 4678.4 538Q4678.4 511 4665.4 489.5Q4652.4 468 4615.4 450.5Q4578.4 433 4505.4 416Q4417.4 396 4364.4 370.5Q4311.4 345 4287.4 306.5Q4263.4 268 4263.4 210Q4263.4 148 4294.4 100.5Q4325.4 53 4382.4 26.5Q4439.4 0 4519.4 0Q4604.4 0 4663.4 30.5Q4722.4 61 4756.4 114Q4790.4 167 4798.4 236L4667.4 242Q4662.4 203 4643.9 174Q4625.4 145 4593.9 128.5Q4562.4 112 4517.4 112Q4461.4 112 4428.9 137.5Q4396.4 163 4396.4 205Q4396.4 234 4409.9 253Q4423.4 272 4458.4 285.5Q4493.4 299 4556.4 314Q4651.4 334 4707.4 365Q4763.4 396 4787.4 437Q4811.4 478 4811.4 531Q4811.4 596 4778.4 643.5Q4745.4 691 4685.4 716.5Q4625.4 742 4544.4 742ZM5124 726L5124 16L5602 16L5602 129L5254 129L5254 314L5590 314L5590 426L5254 426L5254 613L5610 613L5610 726Z";
+
+/** viewBox for the trimmed outlines above. */
+const VIEWBOX = "0 0 5610 742";
+
+/**
+ * Height is the cap height, so these read slightly smaller than the font sizes
+ * they replaced. Width follows from the 7.56:1 aspect ratio.
+ */
+const MARK_SIZE: Record<LogoSize, string> = {
+  sm: "h-[0.7rem]",
+  md: "h-[0.9rem]",
+  lg: "h-[1.45rem]",
+};
 
 interface LogoProps {
   className?: string;
-  showText?: boolean;
+  size?: LogoSize;
+  tone?: "auto" | "invert";
 }
 
-export function Logo({ className = "", showText = true }: LogoProps) {
+/** Full lockup: the wordmark on its own. */
+export function Logo({
+  className,
+  size = "md",
+  tone = "auto",
+}: LogoProps) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-foreground shadow-sm transition-transform duration-300 hover:scale-105">
-        <div className="absolute inset-0 bg-white/20 backdrop-blur-sm" />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="relative z-10 h-5 w-5 text-background"
-        >
-          <rect x="6" y="4" width="4" height="16" rx="1" />
-          <polygon points="14,4 14,20 22,12" fill="currentColor" stroke="none" />
-        </svg>
-      </div>
-      {showText && (
-        <span className="text-xl font-extrabold tracking-tight text-foreground drop-shadow-sm">
-          Repause
-        </span>
+    <span
+      className={cn(
+        "group/mark inline-flex select-none items-center text-foreground",
+        tone === "invert" && "text-[#f7f5f2]",
+        className,
       )}
-    </div>
+    >
+      <svg
+        viewBox={VIEWBOX}
+        aria-hidden="true"
+        focusable="false"
+        className={cn("shrink-0 fill-current", MARK_SIZE[size])}
+      >
+        <path d={WORDMARK} />
+      </svg>
+      <span className="sr-only">Repause</span>
+    </span>
   );
 }

@@ -68,11 +68,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     { _id: id, userId: session.user.id },
     {
       $set: {
-        "review.stackDescription": body.review.stackDescription ?? "",
+        "review.contribution": body.review.contribution ?? "",
         "review.targetRole": body.review.targetRole ?? "",
         "review.companyTier": body.review.companyTier ?? "",
         "review.jobDescription": body.review.jobDescription ?? "",
-        "review.additionalContext": body.review.additionalContext ?? "",
       },
     },
     { returnDocument: "after" },

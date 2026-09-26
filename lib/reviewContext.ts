@@ -2,24 +2,32 @@ import { createHash } from "crypto";
 
 import type { ProjectReview } from "@/types/project";
 
+/**
+ * Trims every field defensively. Projects stored before `contribution` existed
+ * have no such key, so this must tolerate a partial review rather than throw.
+ */
 export function normalizeReview(review: ProjectReview): ProjectReview {
+  const text = (value: string | undefined) => value?.trim() ?? "";
+
   return {
-    stackDescription: review.stackDescription.trim(),
-    targetRole: review.targetRole.trim(),
-    companyTier: review.companyTier.trim(),
-    jobDescription: review.jobDescription.trim(),
-    additionalContext: review.additionalContext.trim(),
+    contribution: text(review.contribution),
+    targetRole: text(review.targetRole),
+    companyTier: text(review.companyTier),
+    jobDescription: text(review.jobDescription),
+    stackDescription: text(review.stackDescription),
+    additionalContext: text(review.additionalContext),
   };
 }
 
 export function hashReviewContext(review: ProjectReview): string {
   const normalized = normalizeReview(review);
+  // Only fields the candidate can actually edit take part in the hash, so
+  // regenerating is driven by real edits rather than by retired fields.
   const payload = JSON.stringify([
-    normalized.stackDescription,
+    normalized.contribution,
     normalized.targetRole,
     normalized.companyTier,
     normalized.jobDescription,
-    normalized.additionalContext,
   ]);
 
   return createHash("sha256").update(payload).digest("hex").slice(0, 16);
@@ -29,8 +37,6 @@ export function formatReviewSummary(review: ProjectReview): string {
   const parts = [
     review.targetRole && `Role: ${review.targetRole}`,
     review.companyTier && `Tier: ${review.companyTier}`,
-    review.stackDescription &&
-      `Stack: ${review.stackDescription.slice(0, 60)}${review.stackDescription.length > 60 ? "…" : ""}`,
   ].filter(Boolean);
 
   return parts.length > 0 ? parts.join(" · ") : "Empty context";

@@ -8,18 +8,28 @@ import { toast } from "sonner";
 import type { ProjectReview, SerializedProject } from "@/types/project";
 
 const EMPTY_REVIEW: ProjectReview = {
-  stackDescription: "",
+  contribution: "",
   targetRole: "",
   companyTier: "",
   jobDescription: "",
+  stackDescription: "",
   additionalContext: "",
 };
+
+const TIERS = [
+  { value: "", label: "Select tier" },
+  { value: "startup", label: "Startup" },
+  { value: "mid-size", label: "Mid-size" },
+  { value: "faang", label: "FAANG / Big Tech" },
+];
 
 interface ProjectReviewStudioProps {
   project: SerializedProject;
 }
 
-export function ProjectReviewStudio({ project: initial }: ProjectReviewStudioProps) {
+export function ProjectReviewStudio({
+  project: initial,
+}: ProjectReviewStudioProps) {
   const router = useRouter();
   const [project, setProject] = useState(initial);
   const [review, setReview] = useState(initial.review);
@@ -29,6 +39,10 @@ export function ProjectReviewStudio({ project: initial }: ProjectReviewStudioPro
 
   const hasNarrative = project.narrativeStatus === "ready";
   const isBusy = isSaving || isGenerating || isClearing;
+
+  function update<K extends keyof ProjectReview>(key: K, value: ProjectReview[K]) {
+    setReview((current) => ({ ...current, [key]: value }));
+  }
 
   async function persistReview(nextReview: ProjectReview) {
     const response = await fetch(`/api/projects/${project.id}`, {
@@ -135,36 +149,106 @@ export function ProjectReviewStudio({ project: initial }: ProjectReviewStudioPro
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-10">
-      <header className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--card)] via-[var(--accent-subtle)]/40 to-[var(--card)] p-8 shadow-sm">
-        <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-[var(--accent)]/10 blur-3xl" />
-        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <Link
-              href="/dashboard"
-              className="text-sm text-muted transition-colors hover:text-accent"
-            >
-              ← Dashboard
-            </Link>
-            <p className="mt-3 text-sm font-semibold tracking-[0.2em] text-accent">
-              PROJECT REVIEW
-            </p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-              {project.repoOwner}/{project.repoName}
-            </h1>
-            <p className="mt-2 max-w-xl text-sm text-muted">
-              Confirm stack details, fill context gaps, then generate your
-              interview narrative.
-            </p>
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6 py-8">
+      {/* Page head */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href="/dashboard"
+          className="text-sm text-muted transition-colors hover:text-accent"
+        >
+          ← Back to dashboard
+        </Link>
+        <a
+          href={project.repoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-muted transition-colors hover:text-accent"
+        >
+          View on GitHub ↗
+        </a>
+      </div>
+
+      <div className="mt-4 border-b border-[var(--border)] pb-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
+          Project review
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+          {project.repoOwner}/{project.repoName}
+        </h1>
+        <p className="mt-1.5 max-w-2xl text-sm text-muted">
+          We read the repository. Tell us what you built and who you are
+          interviewing with, and the deck is written around your answers.
+        </p>
+      </div>
+
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+        {/* Form */}
+        <form
+          className="space-y-7"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleGenerateNarrative();
+          }}
+        >
+          <Field
+            label="Your contribution and impact"
+            hint="The one thing the repository cannot tell us. What you personally built, your scope, and the outcome it produced."
+          >
+            <textarea
+              className="textarea"
+              rows={5}
+              value={review.contribution}
+              onChange={(event) => update("contribution", event.target.value)}
+              placeholder="e.g. I designed and shipped the ingestion pipeline end to end — the scraper, the queue, and the retry layer. Cut median import time from 40s to 6s and it has processed 40k repos without a manual retry."
+            />
+          </Field>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="Target role">
+              <input
+                className="input"
+                value={review.targetRole}
+                onChange={(event) => update("targetRole", event.target.value)}
+                placeholder="e.g. Backend Engineer"
+              />
+            </Field>
+
+            <Field label="Company tier">
+              <select
+                className="input"
+                value={review.companyTier}
+                onChange={(event) => update("companyTier", event.target.value)}
+              >
+                {TIERS.map((tier) => (
+                  <option key={tier.value} value={tier.value}>
+                    {tier.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
           </div>
-          <div className="flex flex-wrap gap-2">
+
+          <Field
+            label="Job description"
+            hint="Optional. Paste the requirements so the deck emphasises what this role will actually ask."
+          >
+            <textarea
+              className="textarea"
+              rows={5}
+              value={review.jobDescription}
+              onChange={(event) => update("jobDescription", event.target.value)}
+              placeholder="Paste the relevant requirements…"
+            />
+          </Field>
+
+          {/* Actions */}
+          <div className="flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-6">
             <button
-              type="button"
-              onClick={handleClearContext}
+              type="submit"
               disabled={isBusy}
-              className="btn btn-secondary"
+              className="btn btn-primary"
             >
-              {isClearing ? "Clearing…" : "Clear context"}
+              {isGenerating ? "Generating…" : "Generate study deck"}
             </button>
             <button
               type="button"
@@ -176,106 +260,23 @@ export function ProjectReviewStudio({ project: initial }: ProjectReviewStudioPro
             </button>
             <button
               type="button"
-              onClick={handleGenerateNarrative}
+              onClick={handleClearContext}
               disabled={isBusy}
-              className="btn btn-primary"
+              className="ml-auto text-xs text-muted transition-colors hover:text-danger disabled:opacity-50"
             >
-              {isGenerating ? "Generating…" : "Generate narrative"}
+              {isClearing ? "Clearing…" : "Clear context"}
             </button>
           </div>
-        </div>
-      </header>
+        </form>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:items-start">
-        <section className="card space-y-5 shadow-sm lg:sticky lg:top-6">
-          <div>
-            <h2 className="text-lg font-semibold">Your context</h2>
-            <p className="mt-1 text-sm text-muted">
-              Adjust what Gemini should assume about your stack and interview
-              target.
-            </p>
-          </div>
-
-          <Field
-            label="Stack & technologies"
-            hint="Override or clarify languages/frameworks the scraper may have missed."
-          >
-            <textarea
-              className="textarea"
-              rows={4}
-              value={review.stackDescription}
-              onChange={(event) =>
-                setReview({ ...review, stackDescription: event.target.value })
-              }
-              placeholder="e.g. Next.js 14 App Router, PostgreSQL via Prisma, deployed on Vercel…"
-            />
-          </Field>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Target role">
-              <input
-                className="input"
-                value={review.targetRole}
-                onChange={(event) =>
-                  setReview({ ...review, targetRole: event.target.value })
-                }
-                placeholder="e.g. Backend Engineer"
-              />
-            </Field>
-            <Field label="Company tier">
-              <select
-                className="input"
-                value={review.companyTier}
-                onChange={(event) =>
-                  setReview({ ...review, companyTier: event.target.value })
-                }
-              >
-                <option value="">Select tier</option>
-                <option value="startup">Startup</option>
-                <option value="mid-size">Mid-size</option>
-                <option value="faang">FAANG / Big Tech</option>
-              </select>
-            </Field>
-          </div>
-
-          <Field
-            label="Job description (optional)"
-            hint="Paste a JD to tailor tradeoffs and pitch emphasis."
-          >
-            <textarea
-              className="textarea"
-              rows={5}
-              value={review.jobDescription}
-              onChange={(event) =>
-                setReview({ ...review, jobDescription: event.target.value })
-              }
-              placeholder="Paste relevant job requirements…"
-            />
-          </Field>
-
-          <Field
-            label="Additional context"
-            hint="Decisions, constraints, or team context not visible in the repo."
-          >
-            <textarea
-              className="textarea"
-              rows={4}
-              value={review.additionalContext}
-              onChange={(event) =>
-                setReview({ ...review, additionalContext: event.target.value })
-              }
-              placeholder="e.g. Solo project, 3-week hackathon, chose X over Y because…"
-            />
-          </Field>
-
-          <RepoSignals project={project} />
-        </section>
-
-        <aside className="space-y-4">
+        {/* Aside */}
+        <aside className="space-y-4 lg:sticky lg:top-6">
           <StudyDeckPanel project={project} hasNarrative={hasNarrative} />
           {project.narrativeStatus === "failed" && project.narrativeError ? (
             <div className="rounded-xl border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4">
-              <p className="text-sm font-medium text-danger">Last attempt failed</p>
+              <p className="text-sm font-medium text-danger">
+                Last attempt failed
+              </p>
               <p className="mt-1 text-xs text-muted">{project.narrativeError}</p>
             </div>
           ) : null}
@@ -293,94 +294,89 @@ function StudyDeckPanel({
   hasNarrative: boolean;
 }) {
   if (hasNarrative) {
-    const flashcardCount = project.narrative.flashcards.length;
+    const stats = [
+      { label: "Flashcards", value: project.narrative.flashcards.length },
+      {
+        label: "Deep-dive Qs",
+        value: project.narrative.deepDiveQuestions.length,
+      },
+      {
+        label: "Decisions",
+        value: project.narrative.engineeringDecisions.length,
+      },
+      {
+        label: "Failure cases",
+        value: project.narrative.failureScenarios.length,
+      },
+    ];
 
     return (
-      <section className="card space-y-4 border-[var(--accent)]/20 bg-gradient-to-br from-[var(--accent-subtle)]/50 to-[var(--card)] shadow-sm">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">Study deck ready</h2>
-            <p className="mt-1 text-sm text-muted">
-              Your narrative is on a dedicated page for easier reading.
-            </p>
-          </div>
-          <NarrativeStatus status={project.narrativeStatus} />
+      <section className="panel space-y-4 p-5">
+        <div>
+          <h2 className="text-sm font-semibold">Study deck ready</h2>
+          <p className="mt-1 text-[13px] text-muted">
+            Generated from this context. Edit and regenerate any time.
+          </p>
         </div>
-        <dl className="grid grid-cols-2 gap-3 text-center text-xs">
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
-            <dt className="text-muted">Flashcards</dt>
-            <dd className="mt-1 text-lg font-semibold">{flashcardCount}</dd>
-          </div>
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
-            <dt className="text-muted">Deep-dive Qs</dt>
-            <dd className="mt-1 text-lg font-semibold">
-              {project.narrative.deepDiveQuestions.length}
-            </dd>
-          </div>
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
-            <dt className="text-muted">Decisions</dt>
-            <dd className="mt-1 text-lg font-semibold">
-              {project.narrative.engineeringDecisions.length}
-            </dd>
-          </div>
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-3">
-            <dt className="text-muted">Failure cases</dt>
-            <dd className="mt-1 text-lg font-semibold">
-              {project.narrative.failureScenarios.length}
-            </dd>
-          </div>
+
+        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] text-center">
+          {stats.map((stat) => (
+            <div key={stat.label} className="bg-[var(--card)] px-2 py-2.5">
+              <dd className="text-sm font-semibold tabular-nums">
+                {stat.value}
+              </dd>
+              <dt className="mt-0.5 text-[10px] uppercase tracking-wider text-muted">
+                {stat.label}
+              </dt>
+            </div>
+          ))}
         </dl>
+
         <Link
           href={`/projects/${project.id}/narrative`}
           className="btn btn-primary w-full"
         >
           Open study deck
         </Link>
-        <p className="text-center text-xs text-muted">
-          Regenerating with the same context opens your existing deck.
+        <p className="text-center text-[11px] text-muted">
+          Regenerating with an unchanged context reopens this deck.
         </p>
       </section>
     );
   }
 
   return (
-    <section className="card space-y-4 shadow-sm">
+    <section className="panel space-y-4 p-5">
       <div>
-        <h2 className="text-lg font-semibold">Study deck</h2>
-        <p className="mt-1 text-sm text-muted">
+        <h2 className="text-sm font-semibold">Study deck</h2>
+        <p className="mt-1 text-[13px] text-muted">
           Flashcards, architecture flow, and STAR — built for quick review.
         </p>
         <NarrativeStatus status={project.narrativeStatus} />
       </div>
 
       {project.narrativeStatus === "generating" ? (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--accent-subtle)]/40 p-4">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--accent-subtle)]/40 p-4">
           <p className="text-sm font-medium">Generating your study deck…</p>
           <p className="mt-1 text-xs text-muted">
             This may take a moment if Gemini is under high demand.
           </p>
         </div>
       ) : (
-        <div className="space-y-3 rounded-xl border border-dashed border-[var(--border)] p-4">
-          <p className="text-sm text-muted">
-            Save your context, then click &ldquo;Generate narrative&rdquo; to
-            build flashcards and an architecture diagram.
-          </p>
-          <ul className="space-y-2 text-xs text-muted">
-            <li className="flex gap-2">
-              <span className="text-accent">1.</span>
-              Fill in your stack and target role
+        <ol className="space-y-2.5 text-[13px] text-muted">
+          {[
+            "Describe what you built and the impact it had",
+            "Set your target role and company tier",
+            "Generate the deck",
+          ].map((step, index) => (
+            <li key={step} className="flex gap-2.5">
+              <span className="font-mono text-xs font-semibold text-accent">
+                {index + 1}
+              </span>
+              <span>{step}</span>
             </li>
-            <li className="flex gap-2">
-              <span className="text-accent">2.</span>
-              Save context
-            </li>
-            <li className="flex gap-2">
-              <span className="text-accent">3.</span>
-              Generate — opens on a dedicated study page
-            </li>
-          </ul>
-        </div>
+          ))}
+        </ol>
       )}
     </section>
   );
@@ -397,43 +393,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-sm font-medium">{label}</label>
-      {hint ? <p className="text-xs text-muted">{hint}</p> : null}
+      <label className="block text-sm font-medium">{label}</label>
+      {hint ? <p className="text-xs leading-relaxed text-muted">{hint}</p> : null}
       {children}
-    </div>
-  );
-}
-
-function RepoSignals({ project }: { project: SerializedProject }) {
-  const languageList = Object.entries(project.languages)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
-    .map(([lang, bytes]) => `${lang} (${bytes.toLocaleString()} bytes)`)
-    .join(", ");
-
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--accent-subtle)]/30 p-4">
-      <h3 className="text-sm font-medium">Scraped repo signals</h3>
-      <dl className="mt-3 space-y-2 text-xs text-muted">
-        <div>
-          <dt className="font-medium text-foreground">Languages</dt>
-          <dd>{languageList || "None detected"}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-foreground">Files indexed</dt>
-          <dd>{project.fileCount}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-foreground">Recent commits</dt>
-          <dd>{project.commitCount}</dd>
-        </div>
-        <div>
-          <dt className="font-medium text-foreground">README preview</dt>
-          <dd className="mt-1 line-clamp-4 whitespace-pre-wrap font-mono text-[11px]">
-            {project.readme || "(empty)"}
-          </dd>
-        </div>
-      </dl>
     </div>
   );
 }
@@ -457,7 +419,7 @@ function NarrativeStatus({ status }: { status: string }) {
 
   return (
     <span
-      className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${tone}`}
+      className={`mt-2.5 inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${tone}`}
     >
       {label}
     </span>

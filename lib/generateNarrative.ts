@@ -168,6 +168,10 @@ CONTENT RULES:
 - engineeringDecisions: real choices from THIS repo's stack. Format answers for "Why X instead of Y?" interviews.
 - failureScenarios: go beyond the happy path — AI failures, validation errors, DB failures, partial state.
 - gaps: only personal unknowns the candidate must clarify — keep minimal.
+- The candidate context states what THEY personally built and the outcome. The repository alone
+  cannot reveal authorship, scope, team size, or results, so treat the Contribution field as
+  ground truth: scope the STAR story, the pitch, and the decision cards to it, and never attribute
+  work to the candidate that it does not claim.
 - Be specific to this repository. Mark assumptions when repo evidence is thin.`;
 }
 
@@ -187,11 +191,10 @@ ${input.fileTreeSummary}
 ${input.recentCommits}
 
 ## Candidate context
-- Stack: ${input.review.stackDescription || "(not provided)"}
+- Contribution: ${input.review.contribution || "(not provided)"}
 - Role: ${input.review.targetRole || "(not provided)"}
 - Tier: ${input.review.companyTier || "(not provided)"}
 - JD: ${input.review.jobDescription || "(not provided)"}
-- Notes: ${input.review.additionalContext || "(not provided)"}
 
 Generate concise interview study material.`;
 }
